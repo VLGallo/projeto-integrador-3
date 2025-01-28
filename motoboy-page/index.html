@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entregas</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="functions.js"></script>
+  </head>
+
+
+  <body>
+    <h1>Entregas</h1>
+    <div class="container">
+      <div
+        style="
+          display: flex;
+          flex-direction: row;
+          justify-content: space-around;
+        ">
+        <div>
+          <div class="pedido-info">
+            <p><span id="motoboy"></span></p>
+          </div>
+        </div>
+        <div class="imagemPizza">
+          <img src="image/pizza.png" alt="Pizza" width="100" height="auto" />
+        </div>
+      </div>
+    </div>
+
+    <div id="lista-pedidos" class="container-lista-pedidos"></div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+      ">
+      <div class="imagemLogo">
+        <img src="image/logo.png" alt="Logotipo" width="200" height="auto" />
+      </div>
+
+      <div>
+        <div class="entregas-feitas-container">
+          <div class="entregas-feitas" style="font-size: 0.8em;">Entregas</div>
+          <div id="entregas-feitas">0</div>
+        </div>
+        <br />
+        <div class="entregas-feitas-container">
+          <div class="entregas-feitas" style="font-size: 0.8em;">Valor a receber</div>
+          <div id="valor-a-receber">R$00,00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Projeto Integrador 2 - Grupo 7 - DRP09</p>
+    </div>
+  </body>
+</html>

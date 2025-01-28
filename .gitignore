@@ -1,0 +1,5 @@
+venv/
+.idea/
+/back-end/.idea
+*.pyc
+node_modules/*
