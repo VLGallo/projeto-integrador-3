@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Gestao de Entregas",
+    "slug": "gestao-de-entregas",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vlgallo.gestaodeentregas"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.vlgallo.gestaodeentregas"
+    },
+    "web": {
+      "output": "single",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/LuckiestGuy.ttf"
+          ]
+        }
+      ],
+      "expo-router"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "065591ce-de62-4925-8fad-13385899e8b9"
+      }
+    }
+  }
+}
