@@ -2,6 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 import dj_database_url
 import os
+import sys
 #from dotenv import load_dotenv
 
 #load_dotenv()
@@ -121,10 +122,24 @@ DATABASES = {
     }
 }
 
+# Se a variável DATABASE_URL existir e **não estivermos rodando testes**, sobrescreve o banco de dados padrão
+    # Se rodar testes (python manage.py test), o Django não usará DATABASE_URL, mas sim o banco MySQL local (test_pizzaria_db).
+    # Se rodar o projeto normalmente (python manage.py runserver), usará DATABASE_URL apenas se estiver definida.
 database_url = os.environ.get("DATABASE_URL")
+
 #DATABASES["default"] = dj_database_url.parse("postgresql://zerissi_banco_user:qddfrvzueuEa065PWzGZTfsoF9PywCfe@dpg-csnseei3esus73ehomqg-a.oregon-postgres.render.com/zerissi_banco")
 DATABASES["default"] = dj_database_url.parse(database_url)
 
+if database_url and "test" not in sys.argv:
+    DATABASES["default"] = dj_database_url.parse(database_url)
+
+# Configuração específica para testes
+if "test" in sys.argv:
+    DATABASES["default"]["NAME"] = "test_pizzaria_db"  # Nome do banco temporário
+    DATABASES["default"]["USER"] = "root"
+    DATABASES["default"]["PASSWORD"] = ""  
+    DATABASES["default"]["HOST"] = "localhost"
+    DATABASES["default"]["PORT"] = "3306"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
