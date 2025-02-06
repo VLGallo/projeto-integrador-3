@@ -143,8 +143,8 @@ DATABASES = {
 #DATABASES["default"] = dj_database_url.parse("postgresql://zerissi_banco_user:qddfrvzueuEa065PWzGZTfsoF9PywCfe@dpg-csnseei3esus73ehomqg-a.oregon-postgres.render.com/zerissi_banco")
 #DATABASES["default"] = dj_database_url.parse(database_url)
 
-if database_url and "test" not in sys.argv:
-    DATABASES["default"] = dj_database_url.parse(database_url)
+# if database_url and "test" not in sys.argv:
+#     DATABASES["default"] = dj_database_url.parse(database_url)
 
 # Configuração específica para testes
 if "test" in sys.argv:
