@@ -14,10 +14,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = "ad7bd4e341f351571f09e189cc402521"
+#os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG","False").lower() == "true"
+DEBUG = True #os.environ.get("DEBUG","False").lower() == "true"
 
 # Application definition
 
@@ -60,10 +61,12 @@ REST_FRAMEWORK = {
     # ],
 }
 
-CORS_ALLOWED_ORIGINS = os.environ.get("ALLOWED_HOSTS").split(" ")
+#CORS_ALLOWED_ORIGINS = os.environ.get("ALLOWED_HOSTS").split(" ")
+CORS_ALLOWED_ORIGINS = ["http://localhost:8000","http://127.0.0.1:8000"]
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
+#ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = ["127.0.0.1", "http://localhost:8000","http://127.0.0.1:8000"]
 
 
 MIDDLEWARE = [
@@ -108,22 +111,36 @@ WSGI_APPLICATION = "setup.wsgi.application"
 #         "NAME": BASE_DIR / "db.sqlite3",
 #     }
 # }
+
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": "pizzaria_db",
-# Substituir com dados da criação do no banco local
-        "USER": "root",
-        "PASSWORD": "",
-        # Substituir se estiver usando um servidor remoto
+        "USER": "postgres",
+        "PASSWORD": "12345",
         "HOST": "localhost",
-        "PORT": "3306",
+        "PORT": "5432",
     }
 }
 
-database_url = os.environ.get("DATABASE_URL")
+# para conectar no MySQL
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "pizzaria_db",
+# # Substituir com dados da criação do no banco local
+#         "USER": "root",
+#         "PASSWORD": "",
+#         # Substituir se estiver usando um servidor remoto
+#         "HOST": "localhost",
+#         "PORT": "3306",
+#     }
+# }
+
+#database_url = os.environ.get("DATABASE_URL")
 #DATABASES["default"] = dj_database_url.parse("postgresql://zerissi_banco_user:qddfrvzueuEa065PWzGZTfsoF9PywCfe@dpg-csnseei3esus73ehomqg-a.oregon-postgres.render.com/zerissi_banco")
-DATABASES["default"] = dj_database_url.parse(database_url)
+#DATABASES["default"] = dj_database_url.parse(database_url)
 
 
 # Password validation
