@@ -63,12 +63,17 @@ REST_FRAMEWORK = {
 }
 
 #CORS_ALLOWED_ORIGINS = os.environ.get("ALLOWED_HOSTS").split(" ")
-CORS_ALLOWED_ORIGINS = ["http://localhost:8000","http://127.0.0.1:8000"]
+#CORS_ALLOWED_ORIGINS = ["http://localhost:8081", "http://127.0.0.1:8081"]
 
 
 #ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
-ALLOWED_HOSTS = ["127.0.0.1", "http://localhost:8000","http://127.0.0.1:8000"]
+#ALLOWED_HOSTS = ["127.0.0.1", "http://localhost:8000","http://127.0.0.1:8000"]
 
+# Permitir CORS de qualquer origem
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Permitir qualquer host (não recomendado em produção)
+ALLOWED_HOSTS = ['*']
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -119,9 +124,12 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "pizzaria_db",
         "USER": "postgres",
-        "PASSWORD": "12345",
+        "PASSWORD": "086002",
         "HOST": "localhost",
         "PORT": "5432",
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
     }
 }
 
