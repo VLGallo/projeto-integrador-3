@@ -1,5 +1,9 @@
+// Para acessar a página com o ID do motoboy localmente ---->
+//     http://127.0.0.1:8000/motoboy-page/index.html?motoboy=ID
+
 function buscarPedidos(motoboyId) {
-  fetch(`https://projeto-integrador-2-0rhf.onrender.com/pedido/motoboy/${motoboyId}`)
+  // fetch(`https://projeto-integrador-2-0rhf.onrender.com/pedido/motoboy/${motoboyId}`)
+  fetch(`http://localhost:8000/pedido/motoboy/${motoboyId}`)
     .then((response) => response.json())
     .then((data) => {
       exibirMotoboy(data.motoboy);
@@ -142,7 +146,9 @@ function criarCheckboxComLabel(id, labelText, listaPedidos, parentElement) {
 }
 
 function confirmarOuCancelarEntrega(idPedido, acao, listaPedidos) {
-  const endpoint = ` https://projeto-integrador-2-0rhf.onrender.com/pedido/${idPedido}/action/${acao}`;
+  // const endpoint = ` https://projeto-integrador-2-0rhf.onrender.com/pedido/${idPedido}/action/${acao}`;
+  const endpoint = ` http://localhost:8000/pedido/${idPedido}/action/${acao}`;
+
   console.log(`Chamando endpoint: ${endpoint}`);
 
   const requestOptions = {
