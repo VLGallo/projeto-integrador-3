@@ -8,6 +8,9 @@ class Motoboy(models.Model):
     telefone = models.CharField(max_length=30)
     placa = models.CharField(max_length=20)
     funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, null=True)
+    # Add user e senha
+    usuario = models.CharField(max_length=100, unique=True, null=True, blank=True, default='default_usuario')
+    senha = models.CharField(max_length=255, null=True, blank=True, default='default_senha')
 
     class Meta:
         constraints = [
