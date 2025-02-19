@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 
 class MotoboyView(APIView):
     def post(self, request):
+        print("Dados recebidos:", request.data)
         serializer = MotoboySerializerRequest(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
@@ -19,7 +20,8 @@ class MotoboyView(APIView):
 
         except IntegrityError:
             raise ValidationError({"detail": "Motoboy já cadastrado com o mesmo nome, telefone e placa."})
-
+        except ValidationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class MotoboyListView(APIView):
     def get(self, request):
