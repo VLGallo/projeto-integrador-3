@@ -106,13 +106,12 @@ if "test" in sys.argv:
     DATABASES["default"]["HOST"] = "localhost"
     DATABASES["default"]["PORT"] = "3306"
 
-#opção sugerida pelo gpt pra usar sqlite de temporario
-# if "test" in sys.argv:
-#     DATABASES["default"] = {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "test_db.sqlite3",
-#     }
-
+# Configuração específica para testes
+#if "test" in sys.argv:
+#    DATABASES["default"] = {
+#        "ENGINE": "django.db.backends.sqlite3",
+#        "NAME": BASE_DIR / "test_db.sqlite3",  # Usa um banco de dados em memória para testes
+#    }
 
 TEMPLATES = [
     {
@@ -130,15 +129,85 @@ TEMPLATES = [
     },
 ]
 
-# Configuração de arquivos estáticos
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# Configuração do models
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+WSGI_APPLICATION = "setup.wsgi.application"
 
 
-# Configuração de idioma e fuso horário
+# Database
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "pizzaria_db",
+        "USER": "postgres",
+        "PASSWORD": "086002",
+        "HOST": "localhost",
+        "PORT": "5432",
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
+    }
+}
+
+# para conectar no MySQL
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "pizzaria_db",
+# # Substituir com dados da criação do no banco local
+#         "USER": "root",
+#         "PASSWORD": "",
+#         # Substituir se estiver usando um servidor remoto
+#         "HOST": "localhost",
+#         "PORT": "3306",
+#     }
+# }
+
+#database_url = os.environ.get("DATABASE_URL")
+#DATABASES["default"] = dj_database_url.parse("postgresql://zerissi_banco_user:qddfrvzueuEa065PWzGZTfsoF9PywCfe@dpg-csnseei3esus73ehomqg-a.oregon-postgres.render.com/zerissi_banco")
+#DATABASES["default"] = dj_database_url.parse(database_url)
+
+# if database_url and "test" not in sys.argv:
+#     DATABASES["default"] = dj_database_url.parse(database_url)
+
+# Configuração específica para testes
+if "test" in sys.argv:
+    DATABASES["default"]["NAME"] = "test_pizzaria_db"  # Nome do banco temporário
+    DATABASES["default"]["USER"] = "root"
+    DATABASES["default"]["PASSWORD"] = ""  
+    DATABASES["default"]["HOST"] = "localhost"
+    DATABASES["default"]["PORT"] = "3306"
+
+# Password validation
+# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.2/topics/i18n/
+
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
