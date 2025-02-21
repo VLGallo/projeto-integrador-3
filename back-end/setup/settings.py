@@ -98,20 +98,20 @@ else:
 
 
 
-# Configuração específica para testes
-if "test" in sys.argv:
-    DATABASES["default"]["NAME"] = "test_pizzaria_db"  # Nome do banco temporário
-    DATABASES["default"]["USER"] = "root"
-    DATABASES["default"]["PASSWORD"] = ""
-    DATABASES["default"]["HOST"] = "localhost"
-    DATABASES["default"]["PORT"] = "3306"
-
-# Configuração específica para testes
+# Configuração específica para testes MySQL
 #if "test" in sys.argv:
-#    DATABASES["default"] = {
-#        "ENGINE": "django.db.backends.sqlite3",
-#        "NAME": BASE_DIR / "test_db.sqlite3",  # Usa um banco de dados em memória para testes
-#    }
+#    DATABASES["default"]["NAME"] = "test_pizzaria_db"  # Nome do banco temporário
+#    DATABASES["default"]["USER"] = "root"
+#    DATABASES["default"]["PASSWORD"] = ""
+#    DATABASES["default"]["HOST"] = "localhost"
+#    DATABASES["default"]["PORT"] = "3306"
+
+# Configuração específica para testes sqlite
+if "test" in sys.argv:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "test_db.sqlite3",  # Cria um arquivo SQLite para testes
+    }
 
 TEMPLATES = [
     {
@@ -178,13 +178,6 @@ DATABASES = {
 # if database_url and "test" not in sys.argv:
 #     DATABASES["default"] = dj_database_url.parse(database_url)
 
-# Configuração específica para testes
-if "test" in sys.argv:
-    DATABASES["default"]["NAME"] = "test_pizzaria_db"  # Nome do banco temporário
-    DATABASES["default"]["USER"] = "root"
-    DATABASES["default"]["PASSWORD"] = ""  
-    DATABASES["default"]["HOST"] = "localhost"
-    DATABASES["default"]["PORT"] = "3306"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -212,3 +205,10 @@ LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
+
+# Configuração para arquivos estáticos
+STATIC_URL = '/static/'  # URL para acessar arquivos estáticos
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Diretório onde os arquivos estáticos serão coletados
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Diretórios adicionais para arquivos estáticos
+]
