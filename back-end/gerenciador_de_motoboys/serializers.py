@@ -10,7 +10,8 @@ class MotoboySerializerRequest(serializers.ModelSerializer):
 
     class Meta:
         model = Motoboy
-        fields = ['id', 'nome', 'telefone', 'placa', 'funcionario']
+        fields = ['id', 'nome', 'telefone', 'placa', 'funcionario', "usuario", "senha"]
+        # extra_kwargs = {"senha": {"write_only": True}}  # Oculta a senha na resposta
 
     # Função para tratar telefone
     def validate_telefone(self, value):
@@ -33,6 +34,16 @@ class MotoboySerializerRequest(serializers.ModelSerializer):
             raise serializers.ValidationError("Placa inválida. Deve conter 7 caracteres.")
         return placa_limpa
 
+    def validate_usuario(self, value):
+        if not value:
+            raise serializers.ValidationError("O campo 'usuario' não pode ser vazio.")
+        return value
+
+    def validate_senha(self, value):
+        if not value:
+            raise serializers.ValidationError("O campo 'senha' não pode ser vazio.")
+        return value
+
 
     def create(self, validated_data):
         funcionario = validated_data.pop('funcionario')
@@ -52,12 +63,4 @@ class MotoboySerializerResponse(serializers.ModelSerializer):
 
     class Meta:
         model = Motoboy
-        fields = ['id', 'nome', 'telefone', 'placa', 'funcionario']
-
-
-class MotoboySerializerResponse(serializers.ModelSerializer):
-    funcionario = FuncionarioSerializer()
-
-    class Meta:
-        model = Motoboy
-        fields = ['id', 'nome', 'telefone', 'placa', 'funcionario']
+        fields = ['id', 'nome', 'telefone', 'placa', 'funcionario', 'usuario', 'senha']

@@ -19,6 +19,8 @@ const TelaCadastro = () => {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [placa, setPlaca] = useState("");
+  const [usuario, setUsuario] = useState("");
+  const [senha, setSenha] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const { isDarkMode, toggleTheme } = useTheme();
 
@@ -36,30 +38,56 @@ const TelaCadastro = () => {
   }, []);
 
   const handleSalvar = async () => {
+    if (!nome) {
+      alert("O campo Nome é obrigatório.");
+      return;
+    }
+  
+    if (!usuario) {
+      alert("O campo Usuário é obrigatório.");
+      return;
+    }
+
+    if (telefone.length < 10 || telefone.length > 11) {
+      alert('O telefone deve conter 10 ou 11 dígitos.');
+      return;
+    }
+  
+    if (placa.length !== 7) {
+      alert('A placa deve conter exatamente 7 caracteres.');
+      return;
+    }
+  
     try {
       const response = await axios.post(BASE_URL + "/motoboy/add", {
         nome: nome,
         telefone: telefone,
         placa: placa,
         funcionario: 1,
+        usuario: usuario,
+        senha: senha,
       });
       console.log(response);
-
+  
       if (response.status === 201) {
         setModalVisible(true);
         setNome("");
         setTelefone("");
         setPlaca("");
+        setUsuario("");
+        setSenha("");
       }
     } catch (error) {
-      console.log(error);
+      console.log("Erro ao cadastrar motoboy:", error.response.data);
     }
   };
-
+  
   const handleCancelar = () => {
     setNome("");
     setTelefone("");
     setPlaca("");
+    setUsuario("");
+    setSenha("");
   };
 
   const styles = StyleSheet.create({
@@ -150,6 +178,25 @@ const TelaCadastro = () => {
               testID="placa-entregador-input"
             />
           </View>
+          <View>
+            <Text style={styles.label}>Usuário</Text>
+            <TextInput
+              style={styles.input}
+              value={usuario}
+              onChangeText={setUsuario}
+              testID="usuario-entregador-input"
+            />
+          </View>
+          <View>
+            <Text style={styles.label}>Senha</Text>
+            <TextInput
+              style={styles.input}
+              value={senha}
+              onChangeText={setSenha}
+              secureTextEntry={true}
+              testID="senha-entregador-input"
+            />
+          </View>
           <View style={{ flexDirection: "row" }}>
             <Pressable
               style={[styles.button, { marginRight: 10 }]}
@@ -179,7 +226,5 @@ const TelaCadastro = () => {
     </Template>
   );
 };
-
-
 
 export default TelaCadastro;
