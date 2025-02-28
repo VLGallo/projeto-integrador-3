@@ -25,6 +25,7 @@ const TelaLogin = () => {
   const [senha, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [tipoUsuario, setTipoUsuario] = useState("motoboy");
   const { isDarkMode } = useTheme();
   const theme = isDarkMode ? "light" : "dark";
 
@@ -59,24 +60,46 @@ const TelaLogin = () => {
 
   const entrarTelaHome = async () => {
     try {
-      const response = await axios.post(BASE_URL + "/login", {
-        usuario: usuario,
-        senha: senha,
-      });
+        console.log("Usuário tentando login:", usuario);
 
-      console.log(response);
+        // Tentar logar como funcionário
+        let response = await axios.post(BASE_URL + "/login", {
+            usuario: usuario,
+            senha: senha,
+        });
 
-      if (response.status === 200) {
-        navigation.navigate("TelaHome");
-        setCookie(usuario);
-      } else {
-        setModalVisible(true);
-      }
+        console.log("Resposta da API (funcionário):", response.data);
+
+        if (response.status === 200) {
+            setCookie(usuario);
+            console.log("Login de funcionário bem-sucedido! Redirecionando...");
+            return navigation.navigate("TelaHome"); 
+        }
+
     } catch (error) {
-      setModalVisible(true);
-      console.log(error);
+        console.log("Erro ao tentar login como funcionário. Tentando como motoboy...");
     }
-  };
+
+    try {
+        // Se o login de funcionário falhar, tenta como motoboy
+        let response = await axios.post(BASE_URL + "/motoboy/login", {
+            usuario: usuario,
+            senha: senha,
+        });
+
+        console.log("Resposta da API (motoboy):", response.data);
+
+        if (response.status === 200) {
+            setCookie(usuario);
+            console.log("Login de motoboy bem-sucedido! Redirecionando...");
+            return navigation.navigate("TelaMotoboy", { motoboyId: response.data.id });
+        }
+
+    } catch (error) {
+        console.log("Erro ao tentar login como motoboy. Login inválido.");
+        setModalVisible(true);
+    }
+};
 
   useEffect(() => {
     const updateLayout = () => {
@@ -85,7 +108,7 @@ const TelaLogin = () => {
     };
     Dimensions.addEventListener("change", updateLayout);
     updateLayout();
-  
+
     return () => {
       Dimensions.removeEventListener("change", updateLayout);
     };
@@ -223,7 +246,7 @@ const TelaLogin = () => {
         </View>
       </ImageBackground>
     )}
-      
+
       <View style={{ flex: 1, backgroundColor: "white" }}>
         <View style={styles.rightHalfContent}>
           <Text style={styles.textLogin}> Login </Text>
@@ -261,14 +284,14 @@ const TelaLogin = () => {
           </Pressable>
         </View>
       </View>
-      
+
     {!isMobile && (
       <Image
       source={require("../../assets/images/logo.png")}
       style={[styles.imageLogo, isMobile ? styles.bottomImageMobile : styles.centerImage]}
     />
     )}
-  </View>  
+  </View>
 )
 };
 
