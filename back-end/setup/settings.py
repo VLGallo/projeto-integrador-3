@@ -102,12 +102,12 @@ else:
 
 
 # Configuração específica para testes
-if "test" in sys.argv:
-    DATABASES["default"]["NAME"] = "test_pizzaria_db"  # Nome do banco temporário
-    DATABASES["default"]["USER"] = "root"
-    DATABASES["default"]["PASSWORD"] = ""
-    DATABASES["default"]["HOST"] = "localhost"
-    DATABASES["default"]["PORT"] = "3306"
+# if "test" in sys.argv:
+#     DATABASES["default"]["NAME"] = "test_pizzaria_db"  # Nome do banco temporário
+#     DATABASES["default"]["USER"] = "root"
+#     DATABASES["default"]["PASSWORD"] = ""
+#     DATABASES["default"]["HOST"] = "localhost"
+#     DATABASES["default"]["PORT"] = "3306"
 
 #opção sugerida pelo gpt pra usar sqlite de temporario
 # if "test" in sys.argv:
