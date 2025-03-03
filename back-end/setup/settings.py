@@ -61,7 +61,9 @@ WSGI_APPLICATION = "setup.wsgi.application"
 DB_ENGINE = os.getenv("DB_ENGINE", "postgresql").lower()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+
 if DATABASE_URL:
+
     # Usa a URL de banco de dados para produção
     DATABASES = {
         "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
@@ -72,16 +74,17 @@ else:
         DATABASES = {
             "default": {
                 "ENGINE": "django.db.backends.postgresql",
-                "NAME": os.getenv("POSTGRES_NAME", "pizzaria_db"),
-                "USER": os.getenv("POSTGRES_USER", ""),
-                "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-                "HOST": os.getenv("POSTGRES_HOST", "localhost"),
-                "PORT": os.getenv("POSTGRES_PORT", "5432"),
-                'OPTIONS': {
-                    'client_encoding': 'UTF8',
+                "NAME": os.getenv("POSTGRES_NAME"),
+                "USER": os.getenv("POSTGRES_USER"),
+                "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+                "HOST": os.getenv("POSTGRES_HOST"),
+                "PORT": os.getenv("POSTGRES_PORT"),
+                "OPTIONS": {
+                    "client_encoding": "UTF8",
                 },
             }
         }
+        print(DATABASES)
     elif DB_ENGINE == "mysql":
         DATABASES = {
             "default": {
@@ -138,7 +141,78 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
+
 # Configuração de idioma e fuso horário
+# Database
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "pizzaria_db",
+#         "USER": "postgres",
+#         "PASSWORD": "086002",
+#         "HOST": "localhost",
+#         "PORT": "5432",
+#         'OPTIONS': {
+#             'client_encoding': 'UTF8',
+#         },
+#     }
+# }
+
+# para conectar no MySQL
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "pizzaria_db",
+# # Substituir com dados da criação do no banco local
+#         "USER": "root",
+#         "PASSWORD": "",
+#         # Substituir se estiver usando um servidor remoto
+#         "HOST": "localhost",
+#         "PORT": "3306",
+#     }
+# }
+
+#database_url = os.environ.get("DATABASE_URL")
+#DATABASES["default"] = dj_database_url.parse("postgresql://zerissi_banco_user:qddfrvzueuEa065PWzGZTfsoF9PywCfe@dpg-csnseei3esus73ehomqg-a.oregon-postgres.render.com/zerissi_banco")
+#DATABASES["default"] = dj_database_url.parse(database_url)
+
+# if database_url and "test" not in sys.argv:
+#     DATABASES["default"] = dj_database_url.parse(database_url)
+
+
+# Password validation
+# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.2/topics/i18n/
+
+
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
