@@ -1,6 +1,4 @@
-from datetime import timedelta
 from pathlib import Path
-import dj_database_url
 import os
 import sys
 from dotenv import load_dotenv
@@ -73,7 +71,7 @@ DATABASES = {
     }
 }
 
-# Configuração específica para testes sqlite
+# Configuração específica para testes unitario com Sqlite
 if "test" in sys.argv:
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
@@ -114,10 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
