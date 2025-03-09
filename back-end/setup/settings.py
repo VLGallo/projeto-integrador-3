@@ -5,8 +5,10 @@ import os
 import sys
 from dotenv import load_dotenv
 
-# Carrega variáveis do .env
-load_dotenv()
+# Escolher homolog ou prod
+ENVIRONMENT = os.getenv("DJANGO_ENV", "homolog")
+dotenv_file = f".env.{ENVIRONMENT}"
+load_dotenv(dotenv_file)
 
 # Diretório base do projeto
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,12 +20,11 @@ SECRET_KEY = os.getenv("SECRET_KEY", "chave-padrao-para-dev")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # Hosts permitidos
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ") if os.getenv("ALLOWED_HOSTS") else ["*"]
 
 # Configuração de CORS
 CORS_ALLOWED_ORIGINS = ALLOWED_HOSTS if not DEBUG else ["http://localhost:8081", "http://127.0.0.1:8081"]
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Permite todas as origens apenas em dev
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,61 +59,26 @@ WSGI_APPLICATION = "setup.wsgi.application"
 
 
 # Configuração do banco de dados
-DB_ENGINE = os.getenv("DB_ENGINE", "postgresql").lower()
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if DATABASE_URL:
-    # Usa a URL de banco de dados para produção
-    DATABASES = {
-        "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_NAME"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
+        "OPTIONS": {
+            "client_encoding": "UTF8",
+        },
     }
-else:
-    # Configuração local (PostgreSQL ou MySQL)
-    if DB_ENGINE == "postgresql":
-        DATABASES = {
-            "default": {
-                "ENGINE": "django.db.backends.postgresql",
-                "NAME": os.getenv("POSTGRES_NAME", "pizzaria_db"),
-                "USER": os.getenv("POSTGRES_USER", ""),
-                "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-                "HOST": os.getenv("POSTGRES_HOST", "localhost"),
-                "PORT": os.getenv("POSTGRES_PORT", "5432"),
-                'OPTIONS': {
-                    'client_encoding': 'UTF8',
-                },
-            }
-        }
-    elif DB_ENGINE == "mysql":
-        DATABASES = {
-            "default": {
-                "ENGINE": "django.db.backends.mysql",
-                "NAME": os.getenv("MYSQL_NAME", "pizzaria_db"),
-                "USER": os.getenv("MYSQL_USER", ""),
-                "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
-                "HOST": os.getenv("MYSQL_HOST", "localhost"),
-                "PORT": os.getenv("MYSQL_PORT", "3306"),
-            }
-        }
-    else:
-        raise ValueError("DB_ENGINE inválido. Escolha 'postgresql' ou 'mysql'.")
+}
 
-
-
-# Configuração específica para testes
+# Configuração específica para testes sqlite
 if "test" in sys.argv:
-    DATABASES["default"]["NAME"] = "test_pizzaria_db"  # Nome do banco temporário
-    DATABASES["default"]["USER"] = "root"
-    DATABASES["default"]["PASSWORD"] = ""
-    DATABASES["default"]["HOST"] = "localhost"
-    DATABASES["default"]["PORT"] = "3306"
-
-#opção sugerida pelo gpt pra usar sqlite de temporario
-# if "test" in sys.argv:
-#     DATABASES["default"] = {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "test_db.sqlite3",
-#     }
-
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "test_db.sqlite3",  # Cria um arquivo SQLite para testes
+    }
 
 TEMPLATES = [
     {
@@ -130,16 +96,37 @@ TEMPLATES = [
     },
 ]
 
-# Configuração de arquivos estáticos
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Configuração do models
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# Password validation
+# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 
-# Configuração de idioma e fuso horário
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
+
+# Configuração para arquivos estáticos
+STATIC_URL = '/static/'  # URL para acessar arquivos estáticos
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Diretório onde os arquivos estáticos serão coletados
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Diretórios adicionais para arquivos estáticos
+]

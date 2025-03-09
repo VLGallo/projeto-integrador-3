@@ -19,3 +19,8 @@ class ClienteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Telefone inválido. Deve conter 10 ou 11 dígitos.")
 
         return telefone_limpo
+    
+    def validate_cep(self, value):
+        if not value:
+            raise serializers.ValidationError("O campo 'cep' é obrigatório.")
+        return value
