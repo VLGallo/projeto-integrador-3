@@ -23,7 +23,7 @@ jobs:
           cd back-end  # Navega para a pasta back-end
           ls -la  # Verifica os arquivos no diretório back-end, ajuda a identificar problemas
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Instalando dependências no diretório correto
+          pip install -r back-end/requirements.txt  # Instalando dependências no diretório correto
 
       - name: Run unit tests
         run: |
