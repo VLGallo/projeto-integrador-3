@@ -129,9 +129,9 @@ class ClienteModelTest(TestCase):
         )
         cliente.full_clean()   # Valida o modelo (não deve levantar exceção)
 
-    # Teste de serializers.py
+# Teste de serializers.py
 
-    # Teste: Validação do telefone (remove caracteres especiais, remove zero extra antes do DDD, bloqueia números muito curtos ou longos), serialização e desserialização (garante que os dados são serializados corretamente), campos obrigatórios (não permite campos obrigatórios vazios), máximos e mínimos de caracteres (bloqueia valores que ultrapassam o limite)
+# Teste: Validação do telefone (remove caracteres especiais, remove zero extra antes do DDD, bloqueia números muito curtos ou longos), serialização e desserialização (garante que os dados são serializados corretamente), campos obrigatórios (não permite campos obrigatórios vazios), máximos e mínimos de caracteres (bloqueia valores que ultrapassam o limite)
 
 class ClienteSerializerTest(TestCase):
 
