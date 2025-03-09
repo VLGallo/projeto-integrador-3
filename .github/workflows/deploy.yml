@@ -1,4 +1,4 @@
-name: Continuous Integration and Continuos Delivery
+name: Continuous Integration
 
 on:
   pull_request:
@@ -8,7 +8,6 @@ on:
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
-
 
     steps:
       - name: Checkout code
@@ -21,11 +20,14 @@ jobs:
 
       - name: Install dependencies
         run: |
+          cd back-end  # Navega para a pasta back-end
+          ls -la  # Verifica os arquivos no diretório back-end, ajuda a identificar problemas
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt  # Instalando dependências no diretório correto
 
       - name: Run unit tests
         run: |
+          cd back-end  # Navega para a pasta back-end antes de rodar os testes
           python manage.py test
 
       - name: Trigger Render Deploy
