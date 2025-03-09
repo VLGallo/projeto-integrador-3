@@ -3,7 +3,7 @@ name: Continuous Integration
 on:
   pull_request:
     branches:
-      - main
+      - producao
 
 jobs:
   test-and-deploy:
@@ -22,7 +22,7 @@ jobs:
         run: |
           cd back-end  # Navega para a pasta back-end
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r back-end/requirements.txt  # Certifica-se de que o caminho para requirements.txt está correto
 
       - name: Run unit tests
         run: |
