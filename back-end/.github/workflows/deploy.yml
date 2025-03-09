@@ -21,12 +21,13 @@ jobs:
       - name: Install dependencies
         run: |
           cd back-end  # Navega para a pasta back-end
+          ls -la  # Verifica os arquivos no diretório back-end, ajuda a identificar problemas
           python -m pip install --upgrade pip
-          pip install -r back-end/requirements.txt  # Certifica-se de que o caminho para requirements.txt está correto
+          pip install -r requirements.txt  # Instalando dependências no diretório correto
 
       - name: Run unit tests
         run: |
-          cd back-end  # Garante que está no diretório certo para rodar os testes
+          cd back-end  # Navega para a pasta back-end antes de rodar os testes
           python manage.py test
 
       - name: Trigger Render Deploy
