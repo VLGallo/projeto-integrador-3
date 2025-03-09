@@ -5,8 +5,10 @@ import os
 import sys
 from dotenv import load_dotenv
 
-# Carrega variáveis do .env
-load_dotenv()
+# Escolher homolog ou prod
+ENVIRONMENT = os.getenv("DJANGO_ENV", "homolog")
+dotenv_file = f".env.{ENVIRONMENT}"
+load_dotenv(dotenv_file)
 
 # Diretório base do projeto
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,12 +20,11 @@ SECRET_KEY = os.getenv("SECRET_KEY", "chave-padrao-para-dev")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # Hosts permitidos
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ") if os.getenv("ALLOWED_HOSTS") else ["*"]
 
 # Configuração de CORS
 CORS_ALLOWED_ORIGINS = ALLOWED_HOSTS if not DEBUG else ["http://localhost:8081", "http://127.0.0.1:8081"]
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Permite todas as origens apenas em dev
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,32 +59,19 @@ WSGI_APPLICATION = "setup.wsgi.application"
 
 
 # Configuração do banco de dados
-DB_ENGINE = os.getenv("DB_ENGINE", "postgresql").lower()
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-
-if DATABASE_URL:
-
-    # Usa a URL de banco de dados para produção
-    DATABASES = {
-        "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_NAME"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
+        "OPTIONS": {
+            "client_encoding": "UTF8",
+        },
     }
-else:
-    # Configuração local (PostgreSQL ou MySQL)
-    if DB_ENGINE == "postgresql":
-        DATABASES = {
-            "default": {
-                "ENGINE": "django.db.backends.postgresql",
-                "NAME": os.getenv("POSTGRES_NAME"),
-                "USER": os.getenv("POSTGRES_USER"),
-                "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-                "HOST": os.getenv("POSTGRES_HOST"),
-                "PORT": os.getenv("POSTGRES_PORT"),
-                "OPTIONS": {
-                    "client_encoding": "UTF8",
-                },
-            }
-        }
+}
 
 # Configuração específica para testes sqlite
 if "test" in sys.argv:
@@ -108,8 +96,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "setup.wsgi.application"
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -128,7 +114,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
