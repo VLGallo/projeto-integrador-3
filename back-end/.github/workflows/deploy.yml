@@ -3,7 +3,7 @@ name: Continuous Integration
 on:
   pull_request:
     branches:
-      - producao
+      - main
 
 jobs:
   test-and-deploy:
