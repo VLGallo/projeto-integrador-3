@@ -84,38 +84,13 @@ else:
                 },
             }
         }
-        print(DATABASES)
-    elif DB_ENGINE == "mysql":
-        DATABASES = {
-            "default": {
-                "ENGINE": "django.db.backends.mysql",
-                "NAME": os.getenv("MYSQL_NAME", "pizzaria_db"),
-                "USER": os.getenv("MYSQL_USER", ""),
-                "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
-                "HOST": os.getenv("MYSQL_HOST", "localhost"),
-                "PORT": os.getenv("MYSQL_PORT", "3306"),
-            }
-        }
-    else:
-        raise ValueError("DB_ENGINE inválido. Escolha 'postgresql' ou 'mysql'.")
 
-
-
-# Configuração específica para testes
-# if "test" in sys.argv:
-#     DATABASES["default"]["NAME"] = "test_pizzaria_db"  # Nome do banco temporário
-#     DATABASES["default"]["USER"] = "root"
-#     DATABASES["default"]["PASSWORD"] = ""
-#     DATABASES["default"]["HOST"] = "localhost"
-#     DATABASES["default"]["PORT"] = "3306"
-
-#opção sugerida pelo gpt pra usar sqlite de temporario
-# if "test" in sys.argv:
-#     DATABASES["default"] = {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "test_db.sqlite3",
-#     }
-
+# Configuração específica para testes sqlite
+if "test" in sys.argv:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "test_db.sqlite3",  # Cria um arquivo SQLite para testes
+    }
 
 TEMPLATES = [
     {
@@ -133,61 +108,7 @@ TEMPLATES = [
     },
 ]
 
-# Configuração de arquivos estáticos
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# Configuração do models
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
-
-# Configuração de idioma e fuso horário
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": "pizzaria_db",
-#         "USER": "postgres",
-#         "PASSWORD": "086002",
-#         "HOST": "localhost",
-#         "PORT": "5432",
-#         'OPTIONS': {
-#             'client_encoding': 'UTF8',
-#         },
-#     }
-# }
-
-# para conectar no MySQL
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.mysql",
-#         "NAME": "pizzaria_db",
-# # Substituir com dados da criação do no banco local
-#         "USER": "root",
-#         "PASSWORD": "",
-#         # Substituir se estiver usando um servidor remoto
-#         "HOST": "localhost",
-#         "PORT": "3306",
-#     }
-# }
-
-#database_url = os.environ.get("DATABASE_URL")
-#DATABASES["default"] = dj_database_url.parse("postgresql://zerissi_banco_user:qddfrvzueuEa065PWzGZTfsoF9PywCfe@dpg-csnseei3esus73ehomqg-a.oregon-postgres.render.com/zerissi_banco")
-#DATABASES["default"] = dj_database_url.parse(database_url)
-
-# if database_url and "test" not in sys.argv:
-#     DATABASES["default"] = dj_database_url.parse(database_url)
+WSGI_APPLICATION = "setup.wsgi.application"
 
 
 # Password validation
@@ -217,3 +138,10 @@ LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
 USE_I18N = True
 USE_TZ = True
+
+# Configuração para arquivos estáticos
+STATIC_URL = '/static/'  # URL para acessar arquivos estáticos
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Diretório onde os arquivos estáticos serão coletados
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Diretórios adicionais para arquivos estáticos
+]

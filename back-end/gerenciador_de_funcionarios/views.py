@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 class FuncionarioView(APIView):
     def post(self, request):
-        serializer = FuncionarioSerializer(data=request.data)
+        serializer = FuncionarioSerializer(data=request.data, partial=True)
         try:
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
@@ -61,7 +61,7 @@ class FuncionarioUpdateView(APIView):
 
     def put(self, request, pk):
         funcionario = self.get_object(pk)
-        serializer = FuncionarioSerializer(funcionario, data=request.data)
+        serializer = FuncionarioSerializer(funcionario, data=request.data, partial=True) #Permite atualização parcial
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()

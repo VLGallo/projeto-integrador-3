@@ -12,7 +12,11 @@ class ClienteView(APIView):
         # Obter os dados do corpo da requisição
         nome = request.data.get('nome')
         telefone = request.data.get('telefone')
-        cep = request.data.get('cep').replace('-', '').strip()
+        cep = request.data.get('cep')
+        if cep:
+            cep=cep.replace('-', '').strip()
+        else:
+            cep=''
         logradouro = request.data.get('logradouro')
         numero = request.data.get('numero')
         bairro = request.data.get('bairro')

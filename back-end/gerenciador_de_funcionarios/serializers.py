@@ -31,10 +31,10 @@ class FuncionarioSerializer(serializers.ModelSerializer):
 
         # Verificar se o CPF já está em uso por outro funcionário
         funcionario_id = self.instance.id if self.instance else None
-        if Funcionario.objects.filter(cpf=value).exclude(id=funcionario_id).exists():
+        if Funcionario.objects.filter(cpf=cpf).exclude(id=funcionario_id).exists():
             raise serializers.ValidationError("CPF já existente na base.")
 
-        return value
+        return cpf
 
     # Validação de Email
     def validate_email(self, value):
