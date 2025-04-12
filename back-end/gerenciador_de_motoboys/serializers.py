@@ -6,7 +6,7 @@ import re
 
 
 class MotoboySerializerRequest(serializers.ModelSerializer):
-    funcionario = serializers.IntegerField(write_only=True)
+    funcionario = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
         model = Motoboy
