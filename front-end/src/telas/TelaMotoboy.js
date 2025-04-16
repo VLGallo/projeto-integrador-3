@@ -1,15 +1,61 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, SafeAreaView } from 'react-native';
-import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
-import { BASE_URL } from '@env';
+// TelaMotoboy.jsx
 
-const TelaMotoboy = ({ route }) => {
-  const { motoboyId } = route.params || {};
-  const [motoboy, setMotoboy] = useState(null);
+import React, { useState, useEffect } from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  Text,
+  Image,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
+import { useTheme } from '../context/ThemeContext';
+import TemplateMotoboy from "../components/TemplateMotoboy";
+import CustomizedSwitches from '../components/MaterialSwitch';
+import CustomModal from "../components/CustomModal";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BASE_URL } from '@env';
+import { useRoute } from "@react-navigation/native";
+import { getMotoboyStyles } from '../components/styles/StyleSheetMotoboy';
+
+
+const TelaMotoboy = () => {
   const [pedidos, setPedidos] = useState([]);
   const [entregasFeitas, setEntregasFeitas] = useState(0);
+  const [valorReceber, setValorReceber] = useState(0.00);
+  const [modalVisible, setModalVisible] = useState(true);
+  const { isDarkMode, toggleTheme } = useTheme();
   const navigation = useNavigation();
+  const route = useRoute();
+  const { motoboyId } = route.params || {};
+
+
+  const styles = getMotoboyStyles(isDarkMode);
+
+  const [modalText, setModalText] = useState('');
+const [motoboy, setMotoboy] = useState({ nome: '' });
+
+useEffect(() => {
+  const buscarMotoboy = async () => {
+    try {
+      const motoboyString = await AsyncStorage.getItem('motoboy');
+      if (motoboyString) {
+        const motoboyData = JSON.parse(motoboyString);
+        setMotoboy(motoboyData);
+        setModalText(`Bem-vindo, ${motoboyData.nome}! Pronto para mais entregas?`);
+      }
+    } catch (error) {
+      console.log('Erro ao buscar motoboy:', error);
+    }
+  };
+
+  buscarMotoboy();
+}, []);
+
+
 
   useEffect(() => {
     if (motoboyId) {
@@ -19,164 +65,232 @@ const TelaMotoboy = ({ route }) => {
     }
   }, [motoboyId]);
 
+  // Função para sair e ir para tela de login
+  const handleSair = async () => {
+    try {
+      await AsyncStorage.removeItem("usuario");
+      console.log("Usuário deslogado com sucesso");
+      navigation.navigate("TelaLogin");
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+  };
+
+
   const buscarPedidos = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/pedido/motoboy/${id}`);
+      const response = await fetch(`${BASE_URL}/pedido/motoboy/${id}`);
       if (!response.ok) {
         console.error('Erro ao buscar os pedidos');
         return;
       }
+
       const data = await response.json();
-      setPedidos(data);
-      setEntregasFeitas(data.filter(p => p.status === 'Entregue').length);
-      console.log(data);
-      console.log(data.filter(p => p.status === 'Entregue').length);
+
+      const hoje = new Date().toISOString().split('T')[0];
+
+      const pedidosDoDia = data.filter(pedido => {
+        if (!pedido.data_hora_inicio) return false;
+
+        const dataPedido = new Date(pedido.data_hora_inicio);
+        if (isNaN(dataPedido)) return false;
+
+        return dataPedido.toISOString().split('T')[0] === hoje;
+      });
+
+      setPedidos(pedidosDoDia);
+
+      const entreguesHoje = pedidosDoDia.filter(p => p.status === 'Entregue');
+      setEntregasFeitas(entreguesHoje.length);
+
+      const totalReceberHoje = entreguesHoje.reduce((acc, pedido) => acc + parseFloat(pedido.total_pedido || 0), 0);
+      setValorReceber(totalReceberHoje);
+
+      console.log('Pedidos do dia:', pedidosDoDia);
     } catch (error) {
       console.error('Erro ao buscar pedidos:', error);
     }
   };
 
-  const atualizarStatusPedido = async (idPedido, acao) => {
+
+  const atualizarStatusPedido = async (id, action) => {
     try {
-      await axios.post(`${BASE_URL}/pedido/${idPedido}/action/${acao}`);
-      console.log(`Pedido ${idPedido} atualizado com sucesso!`);
-      buscarPedidos(motoboyId);
+      const response = await fetch(`${BASE_URL}/pedido/${id}/action/${action}`, {
+        // usa POST para ambas as ações
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar o pedido');
+      }
+
+      const pedidoAtualizado = await response.json();
+      console.log('Pedido atualizado:', pedidoAtualizado);
+
+      setPedidos((prevPedidos) =>
+        prevPedidos.map((pedido) =>
+          pedido.id === id ? pedidoAtualizado : pedido
+        )
+      );
+
+      if (action === 'entregar' || action === 'cancelar') {
+        buscarPedidos(motoboyId);
+      }
+
     } catch (error) {
       console.error('Erro ao atualizar pedido:', error);
     }
   };
 
-  const handleSair = () => {
-    navigation.navigate("TelaLogin");
+
+  const formatarEndereco = (cliente) => {
+    if (!cliente) return '';
+  
+    const {
+      logradouro = '',
+      numero = '',
+      complemento = '',
+      bairro = '',
+      cep = '',
+    } = cliente;
+  
+    return `${logradouro}, ${numero}${complemento ? ' - ' + complemento : ''} - ${bairro} - CEP: ${cep}`;
   };
+  
+
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#b20000' }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={styles.container}>
-          <Text style={styles.header}>Entregas</Text>
-          {motoboy && <Text style={styles.motoboyName}>{motoboy.nome}</Text>}
-          <Image source={require('../../assets/images/pizza.png')} style={styles.image} />
+    <TemplateMotoboy>
+      <SafeAreaView style={styles.container}>
 
-          {/* Quadro com os pedidos que será rolável */}
-          <View style={styles.pedidosContainer}>
-            <ScrollView style={styles.pedidosScroll}>
-              {pedidos.map((item) => (
-                <View key={item.id} style={styles.pedidoInfo}>
-                  <Text style={styles.pedidoText}>Pedido: {item.id}</Text>
-                  <Text style={styles.pedidoText}>Total: R${item.total_pedido.toFixed(2)}</Text>
-                  <Text style={styles.pedidoText}>Status: {item.status}</Text>
-                  {item.status === 'Em andamento' && (
-                    <View style={styles.buttonsContainer}>
-                      <TouchableOpacity onPress={() => atualizarStatusPedido(item.id, 'entregar')} style={styles.button}>
-                        <Text style={styles.buttonText}>Entregar</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => atualizarStatusPedido(item.id, 'cancelar')} style={[styles.button, styles.cancelButton]}>
-                        <Text style={styles.buttonText}>Cancelar</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+        {/* Modal */}
+        <CustomModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          modalText={modalText}
+        />
+
+        {/* Título + Switch no topo */}
+        <View style={styles.headerContainer}>
+          <View style={{ flex: 2, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+            <Text style={[styles.titulo, { fontFamily: 'LuckiestGuy', color: '#B20000' }]}>
+              Pedidos{motoboy?.nome ? ` - ${motoboy.nome}` : ''}
+            </Text>
+          </View>
+          <CustomizedSwitches checked={isDarkMode} onChange={toggleTheme} />
+        </View>
+
+        {/* Conteúdo principal */}
+        <View style={styles.conteudo}>
+          <View style={styles.areaScroll}>
+          <ScrollView
+              contentContainerStyle={styles.scrollContainer}
+              style={{
+                scrollbarColor: isDarkMode ? '#888 #222' : '#999 #fff', // thumb | track
+                scrollbarWidth: 'thin',
+              }}
+            >
+
+              {[...pedidos]
+                .sort((a, b) => a.id - b.id) // crescente (do menor para o maior). Use `b.id - a.id` para ordem decrescente.
+                .map((pedido) => {
+              const statusNormalizado = pedido.status?.toLowerCase();
+
+              return (
+                <View
+                  key={pedido.id}
+                  style={[
+                    styles.cardPedido,
+                    (statusNormalizado === 'entregue' || statusNormalizado === 'cancelado') && styles.cardEntregue
+                  ]}
+                >
+                  <View style={styles.pedidoInfo}>
+                    <Text style={styles.pedidoTitulo}>Pedido {pedido.id}</Text>
+                    <Text style={styles.descricao}>Cliente: {pedido.cliente?.nome ?? 'Desconhecido'}</Text>
+                    <Text style={styles.descricao}>Endereço: {formatarEndereco(pedido.cliente)}</Text>
+                    <Text style={styles.descricao}>Telefone: {pedido.cliente?.telefone ?? 'Sem telefone'}</Text>
+                    <Text style={styles.descricao}>Total: R${pedido.total_pedido?.toFixed(2) ?? '0.00'}</Text>
+
+                    <Text
+                      style={[
+                        styles.statusTexto,
+                        statusNormalizado === 'entregue' && styles.statusEntregue,
+                        statusNormalizado === 'cancelado' && styles.statusCancelado,
+                        statusNormalizado === 'em andamento' && styles.statusPendente
+                      ]}
+                    >
+                      Status: {pedido.status}
+                    </Text>
+                  </View>
+
+                  <View style={styles.botoesContainer}>
+                    {statusNormalizado === 'em andamento' && (
+                      <>
+                        <TouchableOpacity onPress={() => atualizarStatusPedido(pedido.id, 'entregar')} style={styles.botaoVerde}>
+                          <Text style={styles.textoBotao}>✔️</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => atualizarStatusPedido(pedido.id, 'cancelar')} style={styles.botaoCinza}>
+                          <Text style={styles.textoBotao}>❌</Text>
+                        </TouchableOpacity>
+                      </>
+                    )}
+                  </View>
                 </View>
-              ))}
+              );
+            })}
+
             </ScrollView>
           </View>
 
-          {/* Rodapé com total de entregas */}
-          <View style={styles.footer}>
-            <Text style={styles.entregasText}>Entregas feitas: {entregasFeitas}</Text>
-            <Text style={styles.entregasText}>Valor a receber: R${(entregasFeitas * 5).toFixed(2)}</Text>
-            <TouchableOpacity onPress={handleSair} style={styles.logoutButton} testID="sair-btn">
-              <Text style={styles.logoutButtonText}>Sair</Text>
-            </TouchableOpacity>
+          <View style={styles.areaResumo}>
+            <Image source={require('../../assets/favicon.png')} style={styles.faviconIcon} />
+
+            <View style={styles.colunasResumo}>
+              <View style={styles.colunaItem}>
+                <View style={styles.caixaBranca}>
+                  <Text style={styles.resumoTexto}>Entregas</Text>
+                </View>
+                <View style={styles.caixaBranca}>
+                  <Text style={styles.resumoValor}>{entregasFeitas}</Text>
+                </View>
+              </View>
+
+              <View style={styles.colunaItem}>
+                <View style={styles.caixaBranca}>
+                  <Text style={styles.resumoTexto}>Valor a receber</Text>
+                </View>
+                <View style={styles.caixaBranca}>
+                  <Text style={styles.resumoValor}>R$ {(entregasFeitas * 5).toFixed(2)}</Text>
+                </View>
+              </View>
+
+              <View style={styles.colunaItem}>
+                <Image source={require('../../assets/images/pizza.png')} style={styles.pizzaIcon} />
+              </View>
+            </View>
+
+            <View style={{ alignItems: 'center', marginTop: 20 }}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#B20000',
+                  paddingHorizontal: 40,
+                  paddingVertical: 12,
+                  borderRadius: 10,
+                }}
+                onPress={handleSair}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Sair</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </TemplateMotoboy>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    flexGrow: 1,
-  },
-  header: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  motoboyName: {
-    fontSize: 22,
-    color: '#fff',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  image: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  pedidosContainer: {
-    backgroundColor: '#fff',
-    padding: 10,
-    marginVertical: 10,
-    borderRadius: 8,
-    height: 300, // Define a altura máxima do quadro rolável
-  },
-  pedidosScroll: {
-    height: '100%', // Faz com que o scroll ocupe a área inteira do quadro
-  },
-  pedidoInfo: {
-    backgroundColor: '#f7f7f7',
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
-  },
-  pedidoText: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
-  },
-  button: {
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 5,
-  },
-  cancelButton: {
-    backgroundColor: 'red',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  entregasText: {
-    fontSize: 18,
-    color: '#fff',
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  footer: {
-    marginBottom: 40,
-    alignItems: 'center',
-  },
-  logoutButton: {
-    marginTop: 20,
-    backgroundColor: '#000',
-    padding: 10,
-    borderRadius: 5,
-  },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
 
 export default TelaMotoboy;
