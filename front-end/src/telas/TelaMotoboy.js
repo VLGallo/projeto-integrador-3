@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Pressable,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import TemplateMotoboy from "../components/TemplateMotoboy";
@@ -46,6 +47,7 @@ useEffect(() => {
         const motoboyData = JSON.parse(motoboyString);
         setMotoboy(motoboyData);
         setModalText(`Bem-vindo, ${motoboyData.nome}! Pronto para mais entregas?`);
+        setModalVisible(true); // Abre o modal = "motoboy-welcome-text-btn"
       }
     } catch (error) {
       console.log('Erro ao buscar motoboy:', error);
@@ -171,6 +173,8 @@ useEffect(() => {
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
           modalText={modalText}
+          testIDText="motoboy-welcome-text"  // Test ID para o texto
+          testIDButton="modal-ok-btn"       // Test ID para o botão
         />
 
         {/* Título + Switch no topo */}
@@ -187,6 +191,7 @@ useEffect(() => {
         <View style={styles.conteudo}>
           <View style={styles.areaScroll}>
           <ScrollView
+              data-testid='scroll-pedidos'
               contentContainerStyle={styles.scrollContainer}
               style={{
                 scrollbarColor: isDarkMode ? '#888 #222' : '#999 #fff', // thumb | track
@@ -229,13 +234,22 @@ useEffect(() => {
                   <View style={styles.botoesContainer}>
                     {statusNormalizado === 'em andamento' && (
                       <>
-                        <TouchableOpacity onPress={() => atualizarStatusPedido(pedido.id, 'entregar')} style={styles.botaoVerde}>
-                          <Text style={styles.textoBotao}>✔️</Text>
-                        </TouchableOpacity>
+                        <Pressable
+                          accessibilityLabel="entregar-pedido-btn"
+                          onPress={() => atualizarStatusPedido(pedido.id, 'entregar')}
+                          style={styles.botaoVerde}
+                        >
+                          <Text styl  e={styles.textoBotao}>✔️</Text>
+                      </Pressable>
 
-                        <TouchableOpacity onPress={() => atualizarStatusPedido(pedido.id, 'cancelar')} style={styles.botaoCinza}>
+
+                        <Pressable
+                          accessibilityLabel="cancelar-pedido-btn"
+                          onPress={() => atualizarStatusPedido(pedido.id, 'cancelar')}
+                          style={styles.botaoCinza}
+                          >
                           <Text style={styles.textoBotao}>❌</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                       </>
                     )}
                   </View>
