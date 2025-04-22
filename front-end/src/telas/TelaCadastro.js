@@ -15,7 +15,10 @@ import { useTheme } from "../context/ThemeContext";
 import { BASE_URL } from '@env';
 
 const TelaCadastro = () => {
-  const [modalVisible, setModalVisible] = useState("");
+  // const [modalVisible, setModalVisible] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [erroModalVisible, setErroModalVisible] = useState(false);
+  const [mensagemErro, setMensagemErro] = useState("");
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [placa, setPlaca] = useState("");
@@ -39,25 +42,35 @@ const TelaCadastro = () => {
 
   const handleSalvar = async () => {
     if (!nome) {
-      alert("O campo Nome é obrigatório.");
+      setMensagemErro("O campo Nome é obrigatório.");
+      setErroModalVisible(true);
       return;
     }
-  
+    
+    
+    if (telefone.length < 10 || telefone.length > 11) {
+      setMensagemErro("O telefone deve conter 10 ou 11 dígitos.");
+      setErroModalVisible(true);
+      return;
+    }
+    
+    if (placa.length !== 7) {
+      setMensagemErro("A placa deve conter exatamente 7 caracteres.");
+      setErroModalVisible(true);
+      return;
+    }    
     if (!usuario) {
-      alert("O campo Usuário é obrigatório.");
+      setMensagemErro("O campo Usuário é obrigatório.");
+      setErroModalVisible(true);
       return;
     }
 
-    if (telefone.length < 10 || telefone.length > 11) {
-      alert('O telefone deve conter 10 ou 11 dígitos.');
+    if (!senha) {
+      setMensagemErro("O campo Senha é obrigatório.");
+      setErroModalVisible(true);
       return;
     }
-  
-    if (placa.length !== 7) {
-      alert('A placa deve conter exatamente 7 caracteres.');
-      return;
-    }
-  
+    
     try {
       const response = await axios.post(BASE_URL + "/motoboy/add", {
         nome: nome,
@@ -78,7 +91,30 @@ const TelaCadastro = () => {
         setSenha("");
       }
     } catch (error) {
-      console.log("Erro ao cadastrar motoboy:", error.response.data);
+      let mensagem = "Erro ao cadastrar motoboy.";
+    
+      if (error.response?.data?.detail) {
+        const detailString = error.response.data.detail;
+    
+        // Regex para pegar a mensagem dentro de string=''
+        const match = detailString.match(/string='(.+?)'/);
+        if (match && match[1]) {
+          mensagem = match[1];
+        }
+      }
+    
+      // Tornar mensagem mais amigável
+      if (mensagem.toLowerCase().includes("usuario já existe")) {
+        mensagem = "Esse nome de usuário já está em uso. Tente outro.";
+      } else if (mensagem.toLowerCase().includes("motoboy com este usuario já existe")) {
+        mensagem = "Já existe um motoboy com esse usuário.";
+      } else if (mensagem.toLowerCase().includes("placa já existe")) {
+        mensagem = "Essa placa já está cadastrada.";
+      }
+    
+      console.log("Erro completo:", error.response);
+      setMensagemErro(mensagem);
+      setErroModalVisible(true);
     }
   };
   
@@ -141,6 +177,12 @@ const TelaCadastro = () => {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         modalText="Entregador(a) cadastrado(a) com sucesso"
+      />
+
+      <CustomModal
+        modalVisible={erroModalVisible}
+        setModalVisible={setErroModalVisible}
+        modalText={mensagemErro}
       />
 
       <View style={styles.tituloContainer}>
