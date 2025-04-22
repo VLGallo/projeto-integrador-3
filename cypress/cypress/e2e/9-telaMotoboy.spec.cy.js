@@ -7,7 +7,7 @@ describe("Teste de login", () => {
       cy.saveSessionState();
     });
 
-    it("Deve exibir modal de boas-vindas e fechar ao clicar", () => {
+    it("Deve exibir modal de boas-vindas e cancelar pedido", () => {
         cy.get('[data-testid="motoboy-welcome-text"]').should("be.visible");
         cy.get('[data-testid="modal-ok-btn"]').click();
         cy.get('[data-testid="motoboy-welcome-text"]').should("not.exist");
