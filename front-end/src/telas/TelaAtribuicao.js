@@ -24,6 +24,7 @@ const TelaAtribuicao = () => {
   const [motoboys, setMotoboys] = useState("");
   const [pedidos, setPedidos] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalText, setModalText] = useState("");
   const [selectedPedidos, setSelectedPedidos] = useState([]);
   const [carregandoMotoboys, setCarregandoMotoboys] = useState(true);
   const [carregandoPedidos, setCarregandoPedidos] = useState(true);
@@ -62,8 +63,26 @@ const TelaAtribuicao = () => {
     const carregarPedidos = async () => {
       try {
         const response = await axios.get(BASE_URL + "/pedido");
-        console.log(response.data);
-        setPedidos(response.data);
+        const pedidos = response.data;
+    
+        // Obtém a data atual no formato YYYY-MM-DD
+        const hoje = new Date().toISOString().split("T")[0];
+    
+        // Filtra os pedidos para incluir apenas os do dia atual
+        const pedidosDoDia = pedidos.filter((pedido) => {
+          if (!pedido.data_hora_inicio) return false;
+    
+          const dataPedido = new Date(pedido.data_hora_inicio);
+          if (isNaN(dataPedido)) return false;
+    
+          return dataPedido.toISOString().split("T")[0] === hoje;
+        });
+    
+        console.log(pedidosDoDia);
+    
+        // Redefine o estado antes de adicionar os pedidos do dia
+        setPedidos([]);
+        setPedidos(pedidosDoDia);
         setCarregandoPedidos(false);
       } catch (error) {
         console.log(error);
@@ -71,29 +90,41 @@ const TelaAtribuicao = () => {
     };
 
     carregarMotoboy();
-    carregarPedidos();
+    carregarPedidos();  
   }, []);
 
   const handleAtribuicao = async () => {
-    console.log("entrei");
-    for (let i = 0; i < selectedPedidos.length; i++) {
-      try {
-        const response = await axios.put(
-          BASE_URL +
-            "/pedido/" +
-            selectedPedidos[i] +
-            "/atribuir-motoboy/" +
-            selectedMotoboy
+    // Verificação: motoboy não selecionado
+    if (!selectedMotoboy) {
+      setModalText("Por favor, selecione um motoboy.");
+      setModalVisible(true);
+      return;
+    }
+  
+    // Verificação: nenhum pedido selecionado
+    if (selectedPedidos.length === 0) {
+      setModalText("Por favor, selecione pelo menos um pedido.");
+      setModalVisible(true);
+      return;
+    }
+  
+    console.log("Iniciando atribuição...");
+    try {
+      for (let i = 0; i < selectedPedidos.length; i++) {
+        await axios.put(
+          `${BASE_URL}/pedido/${selectedPedidos[i]}/atribuir-motoboy/${selectedMotoboy}`
         );
-      } catch (error) {
-        console.log("teste");
-        setModalVisible(true);
-        console.log(error);
       }
-
+  
+      setModalText("Pedido(s) atribuído(s) com sucesso.");
+      setModalVisible(true);
+    } catch (error) {
+      console.log("Erro ao atribuir pedido:", error);
+      setModalText("Erro ao atribuir pedido. Tente novamente.");
       setModalVisible(true);
     }
   };
+  
 
   const handleCancelar = () => {
     setSelectedPedidos([]);
@@ -179,7 +210,7 @@ const TelaAtribuicao = () => {
       <CustomModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
-        modalText="Pedido(s) atribuído(s) com sucesso"
+        modalText={modalText}
       />
       <View style={[styles.containerSecundario, { margin: 30 }]}>
         <View style={styles.tituloContainer}>
