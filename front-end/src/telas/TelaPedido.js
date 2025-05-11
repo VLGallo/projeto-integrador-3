@@ -27,6 +27,7 @@ import { BASE_URL } from "@env";
 const TelaPedido = () => {
   const [clientes, setClientes] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalText, setModalText] = useState("");
   const [clienteSelecionado, setClienteSelecionado] = useState("");
   const [carregandoClientes, setCarregandoClientes] = useState(true);
   const [itens, setItens] = useState([]);
@@ -66,26 +67,42 @@ const TelaPedido = () => {
     const clienteSelecionadoObj = clientes.find(
       (cliente) => cliente.id == clienteSelecionado
     );
+    // Verifica se o cliente foi selecionado
+    if (!clienteSelecionado) {
+      setModalText("Por favor, selecione um cliente.");
+      setModalVisible(true);
+      return;
+    }
+  
+    // Verifica se pelo menos um produto foi selecionado
+    if (itens.length === 0) {
+      setModalText("Por favor, selecione ao menos um produto.");
+      setModalVisible(true);
+      return;
+    }
+    console.log("Itens selecionados:", itens);
     console.log(clienteSelecionadoObj);
     console.log(itens);
-
     const produtosIds = itens.map((item) => item.id);
     console.log(produtosIds);
 
+  
     try {
       const response = await axios.post(BASE_URL + "/pedido/add", {
         produtos: produtosIds,
         cliente: clienteSelecionado,
         funcionario: 1,
       });
-
+  
       if (response.status >= 200 && response.status < 400) {
+        setModalText("Pedido cadastrado com sucesso.");
         setModalVisible(true);
         setItens([]);
         setClienteSelecionado("");
-        setSelectedProduct("");
+        // setSelectedProduct("");
       }
     } catch (error) {
+      setModalText("Erro ao cadastrar pedido. Tente novamente.");
       setModalVisible(true);
       console.log(error);
     }
@@ -165,7 +182,7 @@ const TelaPedido = () => {
       <CustomModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
-        modalText="Pedido cadastrado com sucesso"
+        modalText={modalText}
       />
       <View>
         <View style={styles.tituloContainer}>

@@ -88,7 +88,8 @@ const TelaLogin = () => {
         });
 
         console.log("Resposta da API (motoboy):", response.data);
-
+        await AsyncStorage.setItem('motoboy', JSON.stringify(response.data));
+        
         if (response.status === 200) {
             setCookie(usuario);
             console.log("Login de motoboy bem-sucedido! Redirecionando...");
