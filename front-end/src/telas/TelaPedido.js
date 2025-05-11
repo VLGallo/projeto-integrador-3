@@ -88,6 +88,7 @@ const TelaPedido = () => {
 
   
     try {
+      console.log(BASE_URL)
       const response = await axios.post(BASE_URL + "/pedido/add", {
         produtos: produtosIds,
         cliente: clienteSelecionado,

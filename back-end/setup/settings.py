@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "chave-padrao-para-dev")
 
 # Define o ambiente
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = os.getenv("DEBUG", "False")
 
 # Hosts permitidos
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ") if os.getenv("ALLOWED_HOSTS") else ["*"]
@@ -26,7 +26,7 @@ CORS_ALLOWED_ORIGINS = (
     if not DEBUG else
     ["http://localhost:8081", "http://127.0.0.1:8081"]
 )
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 INSTALLED_APPS = [
     "django.contrib.admin",
