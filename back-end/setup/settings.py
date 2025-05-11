@@ -21,8 +21,12 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ") if os.getenv("ALLOWED_HOSTS") else ["*"]
 
 # Configuração de CORS
-CORS_ALLOWED_ORIGINS = ALLOWED_HOSTS if not DEBUG else ["http://localhost:8081", "http://127.0.0.1:8081"]
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Permite todas as origens apenas em dev
+CORS_ALLOWED_ORIGINS = (
+    ["https://681ff9d2426f2ee923624a6c--gestao-de-entregas.netlify.app"]
+    if not DEBUG else
+    ["http://localhost:8081", "http://127.0.0.1:8081"]
+)
+CORS_ALLOW_ALL_ORIGINS = DEBUG 
 
 INSTALLED_APPS = [
     "django.contrib.admin",
