@@ -65,7 +65,7 @@ const TelaAtribuicao = () => {
         const response = await axios.get(BASE_URL + "/pedido");
         const pedidos = response.data;
     
-        // Obtém a data atual no formato YYYY-MM-DD
+        // Obtém a data atual no   YYYY-MM-DD
         const hoje = new Date().toISOString().split("T")[0];
     
         // Filtra os pedidos para incluir apenas os do dia atual

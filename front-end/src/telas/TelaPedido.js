@@ -91,7 +91,7 @@ const TelaPedido = () => {
       const response = await axios.post(BASE_URL + "/pedido/add", {
         produtos: produtosIds,
         cliente: clienteSelecionado,
-        funcionario: 71,
+        funcionario: 1,
       });
   
       if (response.status >= 200 && response.status < 400) {

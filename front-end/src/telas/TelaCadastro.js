@@ -76,7 +76,7 @@ const TelaCadastro = () => {
         nome: nome,
         telefone: telefone,
         placa: placa,
-        funcionario: 71,
+        funcionario: 1,
         usuario: usuario,
         senha: senha,
       });
