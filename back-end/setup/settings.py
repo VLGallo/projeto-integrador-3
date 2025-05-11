@@ -4,7 +4,7 @@ import sys
 from dotenv import load_dotenv
 
 # Escolher homolog ou prod
-ENVIRONMENT = os.getenv("DJANGO_ENV", "homolog")
+ENVIRONMENT = os.getenv("DJANGO_ENV", "prod")
 dotenv_file = f".env.{ENVIRONMENT}"
 load_dotenv(dotenv_file)
 
