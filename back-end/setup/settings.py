@@ -4,7 +4,7 @@ import sys
 from dotenv import load_dotenv
 
 # Escolher homolog ou prod
-ENVIRONMENT = os.getenv("DJANGO_ENV", "prod")
+ENVIRONMENT = "prod"
 dotenv_file = f".env.{ENVIRONMENT}"
 load_dotenv(dotenv_file)
 
@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "chave-padrao-para-dev")
 
 # Define o ambiente
-DEBUG = os.getenv("DEBUG", "False")
+DEBUG = bool(os.getenv("DEBUG", "False"))
 
 # Hosts permitidos
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ") if os.getenv("ALLOWED_HOSTS") else ["*"]
