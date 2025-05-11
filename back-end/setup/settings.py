@@ -26,7 +26,7 @@ CORS_ALLOWED_ORIGINS = (
     if not DEBUG else
     ["http://localhost:8081", "http://127.0.0.1:8081"]
 )
-CORS_ALLOW_ALL_ORIGINS = DEBUG 
+CORS_ALLOW_ALL_ORIGINS = True
 
 INSTALLED_APPS = [
     "django.contrib.admin",
