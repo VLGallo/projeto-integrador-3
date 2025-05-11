@@ -71,6 +71,7 @@ DATABASES = {
         "PORT": os.getenv("POSTGRES_PORT"),
         "OPTIONS": {
             "client_encoding": "UTF8",
+            'sslmode': 'require',
         },
     }
 }
