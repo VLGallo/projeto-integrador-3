@@ -4,6 +4,7 @@ from gerenciador_de_clientes.models import Cliente
 from gerenciador_de_funcionarios.models import Funcionario
 from gerenciador_de_produtos.models import Produto
 from gerenciador_de_motoboys.models import Motoboy
+from django.utils import timezone
 
 class Pedido(models.Model):
     STATUS_CHOICES = [
@@ -21,9 +22,9 @@ class Pedido(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk and self.status == 'em_andamento':
-            self.data_hora_inicio = self.data_hora_inicio or datetime.now()
+            self.data_hora_inicio = self.data_hora_inicio or timezone.now()
         if self.status == 'entregue' or self.status == 'cancelado':
-            self.data_hora_finalizacao = datetime.now()
+            self.data_hora_finalizacao = timezone.now()
         super().save(*args, **kwargs)
 
     def __str__(self):
