@@ -24,6 +24,7 @@ import { getMotoboyStyles } from '../components/styles/StyleSheetMotoboy';
 
 
 const TelaMotoboy = () => {
+  const isMobile = Dimensions.get('window').width < 768;
   const [pedidos, setPedidos] = useState([]);
   const [entregasFeitas, setEntregasFeitas] = useState(0);
   const [valorReceber, setValorReceber] = useState(0.00);
@@ -263,30 +264,60 @@ useEffect(() => {
           <View style={styles.areaResumo}>
             <Image source={require('../../assets/favicon.png')} style={styles.faviconIcon} />
 
-            <View style={styles.colunasResumo}>
-              <View style={styles.colunaItem}>
-                <View style={styles.caixaBranca}>
-                  <Text style={styles.resumoTexto}>Entregas</Text>
+            {!isMobile && (
+              <View style={styles.colunasResumo}>
+                <View style={styles.colunaItem}>
+                  <View style={styles.caixaBranca}>
+                    <Text style={styles.resumoTexto}>Entregas</Text>
+                  </View>
+                  <View style={styles.caixaBranca}>
+                    <Text style={styles.resumoValor}>{entregasFeitas}</Text>
+                  </View>
                 </View>
-                <View style={styles.caixaBranca}>
-                  <Text style={styles.resumoValor}>{entregasFeitas}</Text>
+
+                <View style={styles.colunaItem}>
+                  <View style={styles.caixaBranca}>
+                    <Text style={styles.resumoTexto}>Valor a receber</Text>
+                  </View>
+                  <View style={styles.caixaBranca}>
+                    <Text style={styles.resumoValor}>R$ {(entregasFeitas * 5).toFixed(2)}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.colunaItem}>
+                  <Image source={require('../../assets/images/pizza.png')} style={styles.pizzaIcon} />
                 </View>
               </View>
+            )}
 
-              <View style={styles.colunaItem}>
-                <View style={styles.caixaBranca}>
-                  <Text style={styles.resumoTexto}>Valor a receber</Text>
+            {isMobile && (
+              <View style={styles.colunasResumo}>
+                <View style={styles.colunaItem}>
+                  <View style={styles.caixaBranca}>
+                    <Text style={styles.resumoTexto}>Entregas</Text>
+                  </View>
+                  <View style={styles.caixaBranca}>
+                    <Text style={styles.resumoValor}>{entregasFeitas}</Text>
+                  </View>
                 </View>
-                <View style={styles.caixaBranca}>
-                  <Text style={styles.resumoValor}>R$ {(entregasFeitas * 5).toFixed(2)}</Text>
+
+                <View style={styles.colunaItem}>
+                  <View style={styles.caixaBranca}>
+                    <Text style={styles.resumoTexto}>Valor a receber</Text>
+                  </View>
+                  <View style={styles.caixaBranca}>
+                    <Text style={styles.resumoValor}>R$ {(entregasFeitas * 5).toFixed(2)}</Text>
+                  </View>
                 </View>
               </View>
+            )}
 
-              <View style={styles.colunaItem}>
-                <Image source={require('../../assets/images/pizza.png')} style={styles.pizzaIcon} />
-              </View>
-            </View>
+            {/* Ícone da pizza isolado se for mobile */}
+            {isMobile && (
+              <Image source={require('../../assets/images/pizza.png')} style={styles.pizzaIcon} />
+            )}
 
+            {/* Botão Sair */}
             <View style={{ alignItems: 'center', marginTop: 20 }}>
               <TouchableOpacity
                 style={{

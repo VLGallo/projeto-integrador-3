@@ -133,17 +133,18 @@ const TelaPedido = () => {
 
   const styles = StyleSheet.create({
     image: {
-      width: 80,
-      height: 100,
+      width: isMobile ? 60 : 80,
+      height: isMobile ? 80 : 100,
     },
     textPedido: {
       fontWeight: "bold",
       color: "#B20000",
       textAlign: "center",
       fontFamily: "LuckiestGuy",
+      fontSize: isMobile ? 16 : 20,
     },
     label: {
-      fontSize: 16,
+      fontSize: isMobile ? 14 : 16,
       fontWeight: "bold",
       marginBottom: 8,
       color: isDarkMode ? "#000" : "#fff",
@@ -161,20 +162,20 @@ const TelaPedido = () => {
     button: {
       backgroundColor: "#015500",
       borderRadius: 10,
-      paddingVertical: 15,
+      paddingVertical: isMobile ? 10 : 15,
       paddingHorizontal: 15,
       alignItems: "center",
     },
     buttonText: {
       color: "white",
-      fontSize: 16,
+      fontSize: isMobile ? 14 : 16,
       fontWeight: "bold",
     },
     tituloContainer: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: 20,
+      marginBottom: isMobile ? 10 : 20,
     },
   });
 
