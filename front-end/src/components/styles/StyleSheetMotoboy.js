@@ -1,29 +1,34 @@
 import { StyleSheet, Dimensions } from 'react-native';
-export const getMotoboyStyles = (isDarkMode) => styles = StyleSheet.create({
+
+export const getMotoboyStyles = (isDarkMode) => {
+  const { width, height } = Dimensions.get('window');
+  const isMobile = width < 600;
+
+  return StyleSheet.create({
     container: {
       flex: 1,
-      paddingHorizontal: 10,
+      paddingHorizontal: isMobile ? 10 : 30,
     },
     headerContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginVertical: 10,
+      marginVertical: isMobile ? 8 : 10,
     },
     titulo: {
-      fontSize: 32,
+      fontSize: isMobile ? 24 : 32,
       fontWeight: 'bold',
       color: isDarkMode ? '#FFF' : '#C62828',
     },
     conteudo: {
       flex: 1,
       flexDirection: 'row',
-      gap: 10,
+      gap: isMobile ? 6 : 10,
     },
     areaScroll: {
       flex: 1,
       paddingRight: 5,
-      height: Dimensions.get('window').height - 130,
+      height: height - 130,
       backgroundColor: isDarkMode ? '#111' : '#fff',
       scrollbarColor: isDarkMode ? '#fff #222' : '#000 #fff',
       scrollbarWidth: 'thin',
@@ -32,17 +37,17 @@ export const getMotoboyStyles = (isDarkMode) => styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'flex-end',
       alignItems: 'center',
-      paddingBottom: 20,
+      paddingBottom: isMobile ? 1 : 20,
     },
     scrollContainer: {
       flexGrow: 1,
-      paddingBottom: 20,
+      paddingBottom: isMobile ? 16 : 20,
       backgroundColor: isDarkMode ? '#222' : '#fff',
     },
     cardPedido: {
       backgroundColor: isDarkMode ? '#333' : '#fff',
-      padding: 15,
-      marginBottom: 10,
+      padding: isMobile ? 10 : 15,
+      marginBottom: isMobile ? 8 : 10,
       borderRadius: 10,
       elevation: 3,
       flexDirection: 'row',
@@ -51,78 +56,78 @@ export const getMotoboyStyles = (isDarkMode) => styles = StyleSheet.create({
       borderColor: isDarkMode ? 'transparent' : '#000',
     },
     cardEntregue: {
-      opacity: isDarkMode ? 0.6 : 0.6, // Dark / white mode
+      opacity: 0.6,
     },
     pedidoInfo: {
       flex: 2,
     },
     pedidoTitulo: {
-      fontSize: 20,
+      fontSize: isMobile ? 16 : 20,
       fontWeight: 'bold',
       color: isDarkMode ? '#90ee90' : '#81C784',
     },
     descricao: {
-      fontSize: 14,
+      fontSize: isMobile ? 12 : 14,
       color: isDarkMode ? '#fff' : '#333',
       marginTop: 4,
     },
     botoesContainer: {
       flexDirection: 'column',
-      alignItems: 'center', // Centraliza no eixo horizontal
-      justifyContent: 'center', // Centraliza no eixo vertical, se precisar
-      gap: 8,
-      marginLeft: 0, // Removido o deslocamento lateral
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 1, // <-- evita ultrapassar
+      maxWidth: isMobile ? 60 : 80, // <-- restringe a largura total
     },
     botaoVerde: {
       backgroundColor: '#4CAF50',
-      width: 40,
-      height: 40,
+      width: isMobile ? 30 : 40,
+      height: isMobile ? 30 : 40,
       borderRadius: 8,
       justifyContent: 'center',
       alignItems: 'center',
     },
     botaoCinza: {
       backgroundColor: '#BDBDBD',
-      width: 40,
-      height: 40,
+      width: isMobile ? 30 : 40,
+      height: isMobile ? 30 : 40,
       borderRadius: 8,
       justifyContent: 'center',
       alignItems: 'center',
     },
     textoBotao: {
-      fontSize: 16,
+      fontSize: isMobile ? 12 : 16,
       color: '#fff',
     },
     resumoTexto: {
-      fontSize: 16,
+      fontSize: isMobile ? 12 : 16,
       fontWeight: 'bold',
-      color: '#000',
+      color: isDarkMode ? '#FFF' : '#000',
       marginTop: 10,
     },
     resumoValor: {
-      fontSize: 18,
+      fontSize: isMobile ? 16 : 18,
       fontWeight: 'bold',
-      color: '#C62828',
+      color: isDarkMode ? '#FFF' : '#C62828',
     },
     pizzaIcon: {
-      width: 100,
-      height: 100,
+      width: isMobile ? 40 : 100,
+      height: isMobile ? 40 : 100,
       marginTop: 10,
       resizeMode: 'contain',
     },
     faviconIcon: {
-      width: 350,
-      height: 350,
-      marginTop: -40,
+      width: isMobile ? 150 : 350,
+      height: isMobile ? 150 : 350,
+      marginTop: isMobile ? -20 : -40,
       alignSelf: 'center',
       resizeMode: 'contain',
     },
     caixaBranca: {
-      backgroundColor: '#FFF',
-      paddingHorizontal: 10,
-      paddingVertical: 6,
+      backgroundColor: isDarkMode ? '#000' : '#FFF',
+      paddingHorizontal: isMobile ? 4 : 10,
+      paddingVertical: isMobile ? 4 : 6,
       borderRadius: 10,
-      marginVertical: 6,
+      marginVertical: isMobile ? 4 : 6,
       alignItems: 'center',
       elevation: 4,
       shadowColor: '#000',
@@ -133,7 +138,7 @@ export const getMotoboyStyles = (isDarkMode) => styles = StyleSheet.create({
     colunasResumo: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      gap: 20,
+      gap: isMobile ? 12 : 20,
     },
     colunaItem: {
       alignItems: 'center',
@@ -141,15 +146,16 @@ export const getMotoboyStyles = (isDarkMode) => styles = StyleSheet.create({
     statusTexto: {
       fontWeight: 'bold',
       marginTop: 4,
-      fontSize: 14,
+      fontSize: isMobile ? 12 : 14,
     },
     statusEntregue: {
-      color: '#00E676', // verde neon
+      color: '#00E676',
     },
     statusCancelado: {
-      color: '#FF1744', // vermelho vibrante
+      color: '#FF1744',
     },
     statusPendente: {
-      color: '#FF9100', // laranja forte
+      color: '#FF9100',
     },
   });
+};
