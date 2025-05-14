@@ -8,6 +8,13 @@ from gerenciador_de_produtos.models import Produto
 from gerenciador_de_motoboys.models import Motoboy
 from rest_framework.exceptions import ValidationError
 from gerenciador_de_pedidos.serializers import PedidoSerializerResponse, PedidoSerializerRequest
+from django.urls import reverse, resolve
+from .views import (PedidoView, PedidoListView, PedidoDetailView, PedidoUpdateView, PedidoDeleteView, PedidoAssignMotoboyView, PedidoActionView, PedidosAtribuidosMotoboysView)
+from gerenciador_de_motoboys.views import PedidosMotoboyView
+from datetime import datetime, date
+from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework import status
+from rest_framework.exceptions import NotFound
 import json
 
 # Testes de models.py
@@ -397,4 +404,296 @@ class PedidoSerializerEdgeCasesTest(TestCase):
 
 # Testes de urls.py
 
+# Verifica se as URLs estão resolvendo corretamente para as views correspondentes
+class PedidosUrlsTest(TestCase):
+    
+    def test_pedido_list_url_resolves(self):
+        #Verifica a URL de listagem de pedidos
+        url = reverse('pedido-list')
+        self.assertEqual(url, '/pedido')
+        self.assertEqual(resolve(url).func.view_class, PedidoListView)
+
+    def test_pedido_add_url_resolves(self):
+        #Verifica a URL de criação de pedido
+        url = reverse('pedido-add')
+        self.assertEqual(url, '/pedido/add')
+        self.assertEqual(resolve(url).func.view_class, PedidoView)
+
+    def test_pedido_detail_url_resolves(self):
+        #Verifica a URL de detalhes do pedido
+        url = reverse('pedido-detail', kwargs={'pk': 1})
+        self.assertEqual(url, '/pedido/1')
+        self.assertEqual(resolve(url).func.view_class, PedidoDetailView)
+
+    def test_pedido_update_url_resolves(self):
+        #Verifica a URL de atualização do pedido
+        url = reverse('pedido-update', kwargs={'pk': 1})
+        self.assertEqual(url, '/pedido/update/1')
+        self.assertEqual(resolve(url).func.view_class, PedidoUpdateView)
+
+    def test_pedido_delete_url_resolves(self):
+        #Verifica a URL de exclusão do pedido
+        url = reverse('pedido-delete', kwargs={'pk': 1})
+        self.assertEqual(url, '/pedido/delete/1')
+        self.assertEqual(resolve(url).func.view_class, PedidoDeleteView)
+
+    def test_pedido_assign_motoboy_url_resolves(self):
+        #Verifica a URL para atribuir motoboy ao pedido
+        url = reverse('pedido-atribuir-motoboy', kwargs={'pk': 1, 'motoboy_id': 2})
+        self.assertEqual(url, '/pedido/1/atribuir-motoboy/2')
+        self.assertEqual(resolve(url).func.view_class, PedidoAssignMotoboyView)
+
+    def test_pedido_action_url_resolves(self):
+        #Verifica a URL para ações no pedido
+        url = reverse('pedido-action', kwargs={'pk': 1, 'action': 'finalizar'})
+        self.assertEqual(url, '/pedido/1/action/finalizar')
+        self.assertEqual(resolve(url).func.view_class, PedidoActionView)
+
+    def test_pedidos_motoboys_url_resolves(self):
+        #Verifica a URL de pedidos atribuídos a motoboys
+        url = reverse('pedidos-atribuidos-motoboys')
+        self.assertEqual(url, '/pedido/motoboys')
+        self.assertEqual(resolve(url).func.view_class, PedidosAtribuidosMotoboysView)
+
+    def test_pedidos_motoboy_url_resolves(self):
+        #Verifica a URL de pedidos de um motoboy específico
+        url = reverse('pedidos-motoboy', kwargs={'motoboy_id': 1})
+        self.assertEqual(url, '/pedido/motoboy/1')
+        self.assertEqual(resolve(url).func.view_class, PedidosMotoboyView)
+
+    def test_url_patterns_count(self):
+        #Verifica se todas as URLs foram definidas
+        from .urls import urlpatterns
+        self.assertEqual(len(urlpatterns), 9)
+
+
 # Testes de views.py
+
+# Verifica a criação, listagem, detalhamento, atualização, exclusão, atribuição de motoboy e ações em pedidos
+
+class PedidoViewTest(TestCase):
+    
+    def setUp(self):
+        self.factory = APIRequestFactory()    
+
+        self.cliente = Cliente.objects.create(
+            nome="Maria Souza",
+            telefone="11987654321",
+            cep="13575140",
+            logradouro="Rua João Ribeiro de Souza Filho",
+            numero="123",
+            bairro="Jardim Beatriz"      
+        )
+        self.funcionario = Funcionario.objects.create(
+            nome="Carlos Oliveira",
+            cpf="70541771850",
+            email="carlos@example.com",
+            usuario="carlos123",
+            senha="senha123"
+        )
+        self.motoboy = Motoboy.objects.create(
+            nome="João Silva",
+            telefone="11999999999",
+            placa="ABC1234",
+            funcionario=self.funcionario,
+            usuario="joao123",
+            senha="senha123"
+        )
+        self.produto1 = Produto.objects.create(
+            nome="Produto 1",
+            preco=10.99
+        )
+        self.produto2 = Produto.objects.create(
+            nome="Produto 2",
+            preco=20.50
+        )
+        self.produto3 = Produto.objects.create(
+            nome="Produto 3",
+            preco=19.00
+        )
+
+        self.pedido = Pedido.objects.create(
+            cliente=self.cliente,
+            funcionario=self.funcionario,
+            motoboy=self.motoboy,
+            data_hora_inicio=timezone.now(),
+            status='em_andamento',
+        )
+        self.pedido.produtos.add(self.produto1, self.produto2)
+
+        # Cria um pedido básico para testes
+        self.pedidodata = {
+            'cliente':self.cliente.id,
+            'funcionario':self.funcionario.id,
+            'motoboy':self.motoboy.id,
+            'data_hora_inicio':timezone.now().isoformat(),
+            'status':'em_andamento',
+            'produtos':[self.produto1.id, self.produto2.id]
+        } 
+
+    # Testes para PedidoView (POST /pedido/add/)
+    
+    def test_create_pedido_success(self):
+        #Testa criação de pedido com dados válidos
+        request = self.factory.post('/pedido/add', self.pedidodata, format='json')
+        view = PedidoView.as_view()
+        response = view(request)
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Pedido.objects.count(), 2)
+
+    def test_create_pedido_missing_fields(self):
+        #Testa criação de pedido com campos faltando
+        data = {'cliente': self.cliente.id}  # Faltando funcionario
+        request = self.factory.post('/pedido/add', data, format='json')
+        view = PedidoView.as_view()
+        response = view(request)
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('funcionario', response.data)
+
+    def test_create_pedido_invalid_funcionario(self):
+        #Testa criação de pedido com funcionário inválido
+        data = {'cliente': self.cliente.id, 'funcionario': 999}
+        request = self.factory.post('/pedido/add', data, format='json')
+        view = PedidoView.as_view()
+        response = view(request)
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('funcionario', response.data)
+
+    # Testes para PedidoListView (GET /pedido/)
+
+    def test_list_pedidos(self):
+        #Testa listagem de pedidos
+        request = self.factory.get('/pedido')
+        view = PedidoListView.as_view()
+        response = view(request)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    # Testes para PedidoDetailView (GET /pedido/<pk>/)
+
+    def test_retrieve_pedido(self):
+        #Testa obtenção de detalhes de pedido existente
+        request = self.factory.get('/pedido/1')
+        view = PedidoDetailView.as_view()
+        response = view(request, pk=self.pedido.pk)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['cliente']['id'], self.cliente.id)
+
+    def test_retrieve_nonexistent_pedido(self):
+        #Testa obtenção de pedido não existente
+        request = self.factory.get('/pedido/999')
+        view = PedidoDetailView.as_view()
+        response = view(request, pk=999)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    # Testes para PedidoUpdateView (PUT /pedido/update/<pk>/)
+    def test_update_pedido_status(self):
+        #Testa atualização de status do pedido
+        data = {'status': 'entregue'}
+        request = self.factory.put('/pedido/update/1', data, format='json')
+        view = PedidoUpdateView.as_view()
+        response = view(request, pk=self.pedido.pk)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, "Status do pedido atualizado com sucesso")
+
+    def test_update_pedido_invalid_status(self):
+        #Testa atualização com status inválido
+        data = {'status': 'invalido'}
+        request = self.factory.put('/pedido/update/1', data, format='json')
+        view = PedidoUpdateView.as_view()
+        response = view(request, pk=self.pedido.pk)
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # Testes para PedidoDeleteView (DELETE /pedido/delete/<pk>/)
+
+    def test_delete_pedido(self):
+        #Testa exclusão de pedido existente
+        request = self.factory.delete('/pedido/delete/1')
+        view = PedidoDeleteView.as_view()
+        response = view(request, pk=self.pedido.pk)
+        
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(Pedido.objects.count(), 0)
+
+    def test_delete_pedido_no_funcionario(self):
+        #Testa exclusão de pedido sem funcionário associado
+        pedido = Pedido.objects.create(cliente=self.cliente)
+
+        request = self.factory.delete('/pedido/delete/1')
+        view = PedidoDeleteView.as_view()
+        response = view(request, pk=pedido.pk)
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # Testes para PedidoAssignMotoboyView (PUT /pedido/<pk>/atribuir-motoboy/<motoboy_id>/)
+
+    def test_assign_motoboy(self):
+        # Testa atribuição de motoboy ao pedido
+        request = self.factory.put('/pedido/1/atribuir-motoboy/1')
+        view = PedidoAssignMotoboyView.as_view()
+        response = view(request, pk=self.pedido.pk, motoboy_id=self.motoboy.pk)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['motoboy']['id'], self.motoboy.pk)
+
+    def test_assign_nonexistent_motoboy(self):
+        #Testa atribuição de motoboy inexistente
+        request = self.factory.put('/pedido/1/atribuir-motoboy/999')
+        view = PedidoAssignMotoboyView.as_view()
+        response = view(request, pk=self.pedido.pk, motoboy_id=999)
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # Testes para PedidoActionView (POST /pedido/<pk>/action/<action>/)
+
+    def test_pedido_action_entregar(self):
+        #Testa ação de entregar pedido
+        request = self.factory.post('/pedido/1/action/entregar')
+        view = PedidoActionView.as_view()
+        response = view(request, pk=self.pedido.pk, action='entregar')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['status'], 'entregue')
+
+    def test_pedido_action_invalid(self):
+        #Testa ação inválida no pedido
+        request = self.factory.post('/pedido/1/action/invalido')
+        view = PedidoActionView.as_view()
+        response = view(request, pk=self.pedido.pk, action='invalido')
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # Testes para PedidosMotoboyView (GET /pedido/motoboy/<motoboy_id>/)
+
+    def test_pedidos_motoboy(self):
+        #Testa listagem de pedidos por motoboy
+        self.pedido.motoboy = self.motoboy
+        self.pedido.save()
+        
+        request = self.factory.get('/pedido/motoboy/1')
+        view = PedidosMotoboyView.as_view()
+        response = view(request, motoboy_id=self.motoboy.pk)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    # Testes para PedidosAtribuidosMotoboysView (GET /pedido/motoboys/)
+
+    def test_pedidos_motoboys(self):
+        #Testa listagem de pedidos por motoboys
+        self.pedido.motoboy = self.motoboy
+        self.pedido.save()
+        
+        request = self.factory.get('/pedido/motoboys')
+        view = PedidosAtribuidosMotoboysView.as_view()
+        response = view(request)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
