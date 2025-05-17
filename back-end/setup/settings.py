@@ -4,7 +4,7 @@ import sys
 from dotenv import load_dotenv
 
 # Escolher homolog ou prod
-ENVIRONMENT = os.getenv("DJANGO_ENV", "homolog")
+ENVIRONMENT = "prod"
 dotenv_file = f".env.{ENVIRONMENT}"
 load_dotenv(dotenv_file)
 
@@ -15,14 +15,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "chave-padrao-para-dev")
 
 # Define o ambiente
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = bool(os.getenv("DEBUG", "False"))
 
 # Hosts permitidos
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ") if os.getenv("ALLOWED_HOSTS") else ["*"]
 
 # Configuração de CORS
-CORS_ALLOWED_ORIGINS = ALLOWED_HOSTS if not DEBUG else ["http://localhost:8081", "http://127.0.0.1:8081"]
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Permite todas as origens apenas em dev
+CORS_ALLOWED_ORIGINS = (
+    ["https://681ff9d2426f2ee923624a6c--gestao-de-entregas.netlify.app"]
+    if not DEBUG else
+    ["http://localhost:8081", "http://127.0.0.1:8081"]
+)
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -67,6 +71,7 @@ DATABASES = {
         "PORT": os.getenv("POSTGRES_PORT"),
         "OPTIONS": {
             "client_encoding": "UTF8",
+            'sslmode': 'require',
         },
     }
 }

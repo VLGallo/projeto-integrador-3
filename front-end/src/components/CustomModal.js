@@ -5,7 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 const { width } = Dimensions.get('window');
 const isSmallScreen = width < 768;
 
-const CustomModal = ({ modalVisible, setModalVisible, modalText }) => {
+const CustomModal = ({ modalVisible, setModalVisible, modalText, testIDText, testIDButton }) => {
   const { isDarkMode } = useTheme(); // Usando o contexto do tema
 
   return (
@@ -24,15 +24,19 @@ const CustomModal = ({ modalVisible, setModalVisible, modalText }) => {
           isSmallScreen && styles.modalViewSmall,
           !isDarkMode && styles.modalDark // Estilo para o modo escuro
         ]}>
-          <Text style={[
-            styles.modalText,
-            isSmallScreen && styles.modalTextSmall,
-            !isDarkMode && styles.modalTextDark // Texto branco para o modo escuro
-          ]}>
+          <Text
+            testID={testIDText} // Adicionando o testID para o texto do modal
+            style={[
+              styles.modalText,
+              isSmallScreen && styles.modalTextSmall,
+              !isDarkMode && styles.modalTextDark // Texto branco para o modo escuro
+            ]}
+          >
             {modalText}
           </Text>
           <View style={{ flexDirection: "row" }}>
             <Pressable
+              testID={testIDButton} // Adicionando o testID para o botão
               onPress={() => setModalVisible(!modalVisible)}
               style={[
                 styles.modalButton,

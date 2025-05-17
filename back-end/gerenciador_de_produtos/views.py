@@ -32,10 +32,13 @@ class ProdutoDetailView(APIView):
         try:
             return Produto.objects.get(pk=pk)
         except Produto.DoesNotExist:
-            raise NotFound("Produto não encontrado")
+            return None
+            # raise NotFound("Produto não encontrado")
 
     def get(self, request, pk):
         produto = self.get_object(pk)
+        if produto is None:
+            return Response("Produto não encontrado", status=status.HTTP_404_NOT_FOUND)
         serializer = ProdutoSerializer(produto)
         return Response(serializer.data)
 
@@ -64,9 +67,12 @@ class ProdutoDeleteView(APIView):
         try:
             return Produto.objects.get(pk=pk)
         except Produto.DoesNotExist:
-            raise NotFound("Produto não encontrado")
+            return None
+            #raise NotFound("Produto não encontrado")
 
     def delete(self, request, pk):
         produto = self.get_object(pk)
+        if produto is None:
+            return Response("Produto não encontrado", status=status.HTTP_404_NOT_FOUND)
         produto.delete()
         return Response(status=status.HTTP_202_ACCEPTED, data="Produto deletado com sucesso")

@@ -75,7 +75,7 @@ const Template = ({ children }) => {
     <View style={styles.containerPrincipal}>
       {isMobile && (
         <Pressable style={styles.menuIcon} onPress={toggleDrawer(true)}>
-          <MaterialIcons name="menu" size={32} color="black" />
+          <MaterialIcons name="menu" size={32} color={isDarkMode ? "black" : "white"} />
         </Pressable>
       )}
 

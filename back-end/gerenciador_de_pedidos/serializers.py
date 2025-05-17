@@ -23,6 +23,21 @@ class PedidoSerializerResponse(serializers.ModelSerializer):
         model = Pedido
         fields = ['id', 'data_hora_inicio', 'data_hora_finalizacao', 'produtos', 'cliente', 'funcionario', 'motoboy', 'status', 'total_pedido']
 
+
+    def validate(self, data):
+        # Validação personalizada para garantir: cliente é obrigatório, pelo menos 1 produto no pedido
+        if not data.get('cliente'):
+            raise serializers.ValidationError({
+                'cliente': 'O cliente é obrigatório para o pedido.'
+            })
+        
+        if 'produtos' not in data or not data['produtos']:
+            raise serializers.ValidationError({
+                'produtos': 'O pedido deve conter pelo menos um produto.'
+            })
+            
+        return data
+
     def validate_funcionario(self, value):
         if value is None:
             raise serializers.ValidationError("O campo 'funcionario' é obrigatório.")
@@ -38,9 +53,20 @@ class PedidoSerializerResponse(serializers.ModelSerializer):
         return total if total is not None else 0
 
 class PedidoSerializerRequest(serializers.ModelSerializer):
+
     class Meta:
         model = Pedido
         fields = ['produtos', 'cliente', 'funcionario']
+        extra_kwargs = {
+            'cliente': {'required': True, 'allow_null': False},
+            'funcionario': {'required': True},
+            'produtos': {'required': True}
+        }
+    
+    def validate(self, data):
+        if data.get('cliente') is None:
+            raise serializers.ValidationError({"cliente": "O cliente é obrigatório."})
+        return data
 
     def validate_funcionario(self, value):
         if value is None:

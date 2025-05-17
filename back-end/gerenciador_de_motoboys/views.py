@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from gerenciador_de_pedidos.serializers import PedidoSerializerResponse
 from gerenciador_de_pedidos.models import Pedido
-
+from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 
 class MotoboyView(APIView):
     def post(self, request):
@@ -48,6 +48,8 @@ class MotoboyDetailView(APIView):
 
 
 class MotoboyUpdateView(APIView):
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
+
     def get_object(self, pk):
         try:
             return Motoboy.objects.get(pk=pk)
@@ -56,6 +58,14 @@ class MotoboyUpdateView(APIView):
 
     def put(self, request, pk):
         motoboy = self.get_object(pk)
+        
+        # Conversão para garantir que 'funcionario' seja int
+        if 'funcionario' in request.data:
+            try:
+                request.data['funcionario'] = int(request.data['funcionario'])
+            except ValueError:
+                return Response ({ 'funcionario': ['Deve ser um número inteiro.'] }, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = MotoboySerializerRequest(motoboy, data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
@@ -63,7 +73,7 @@ class MotoboyUpdateView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except IntegrityError:
-            raise ValidationError({"detail": "Outro motoboy já cadastrado com o mesmo nome, telefone e placa."})
+            raise ValidationError({"detail": "Motoboy já cadastrado com estes dados"})
 
 
 class MotoboyDeleteView(APIView):
@@ -76,7 +86,7 @@ class MotoboyDeleteView(APIView):
     def delete(self, request, pk):
         motoboy = self.get_object(pk)
         motoboy.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT, data="Motoboy deletado com sucesso")
+        return Response({"message": "Motoboy deletado com sucesso"}, status=status.HTTP_204_NO_CONTENT)
 
 class MotoboyLoginView(APIView):
     def post(self, request):

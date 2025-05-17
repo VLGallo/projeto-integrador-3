@@ -4,6 +4,7 @@ from gerenciador_de_motoboys.serializers import MotoboySerializerResponse
 from gerenciador_de_funcionarios.models import Funcionario
 from gerenciador_de_funcionarios.serializers import FuncionarioSerializer
 from gerenciador_de_motoboys.models import Motoboy
+from gerenciador_de_produtos.models import Produto
 from .models import Pedido
 from .serializers import PedidoSerializerRequest, PedidoSerializerResponse
 from rest_framework import status
@@ -19,6 +20,11 @@ class PedidoView(APIView):
         serializer = PedidoSerializerRequest(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        produtos_ids = request.data.get('produtos', [])
+        produtos = Produto.objects.filter(id__in=produtos_ids)
+        if len(produtos) != len(produtos_ids):
+            return Response("Um ou mais produtos não encontrados", status=status.HTTP_400_BAD_REQUEST)
+        
         cliente_id = request.data.get('cliente', None)
         funcionario_id = request.data.get('funcionario', None)
 
@@ -26,9 +32,16 @@ class PedidoView(APIView):
             return Response("Funcionário não encontrado", status=status.HTTP_400_BAD_REQUEST)
 
         pedido = serializer.save(cliente_id=cliente_id, funcionario_id=funcionario_id)
+        pedido.produtos.set(produtos)
         response_data = PedidoSerializerResponse(pedido).data
 
         return Response(data=response_data, status=status.HTTP_201_CREATED)
+    
+    def retrieve(self, request, pk=None):
+        try:
+            pedido = Pedido.objects.get(pk=pk)
+        except Pedido.DoesNotExist:
+            raise NotFound("Pedido não encontrado.")
 
 class PedidoListView(APIView):
     def get(self, request):
