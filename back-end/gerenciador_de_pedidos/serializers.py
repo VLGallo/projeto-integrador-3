@@ -53,6 +53,7 @@ class PedidoSerializerResponse(serializers.ModelSerializer):
         return total if total is not None else 0
 
 class PedidoSerializerRequest(serializers.ModelSerializer):
+
     class Meta:
         model = Pedido
         fields = ['produtos', 'cliente', 'funcionario']
